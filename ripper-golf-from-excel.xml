@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.3.015">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.3.015" expanded="true" name="Process">
+    <process expanded="true">
+      <operator activated="true" class="read_excel" compatibility="5.3.015" expanded="true" height="60" name="Read Excel" width="90" x="112" y="120">
+        <parameter key="excel_file" value="/Users/felix/03.TFG/DatosDeEjemplo/golf.xlsx"/>
+        <list key="annotations"/>
+        <list key="data_set_meta_data_information"/>
+      </operator>
+      <operator activated="true" class="set_role" compatibility="5.3.015" expanded="true" height="76" name="Set Role" width="90" x="313" y="120">
+        <parameter key="attribute_name" value="Play"/>
+        <parameter key="target_role" value="label"/>
+        <list key="set_additional_roles">
+          <parameter key="Outlook" value="regular"/>
+          <parameter key="Temperature" value="regular"/>
+          <parameter key="Humidity" value="regular"/>
+          <parameter key="Wind" value="regular"/>
+        </list>
+      </operator>
+      <operator activated="true" class="rule_induction" compatibility="5.3.015" expanded="true" height="76" name="Rule Induction" width="90" x="514" y="120"/>
+      <connect from_op="Read Excel" from_port="output" to_op="Set Role" to_port="example set input"/>
+      <connect from_op="Set Role" from_port="example set output" to_op="Rule Induction" to_port="training set"/>
+      <connect from_op="Rule Induction" from_port="model" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>
