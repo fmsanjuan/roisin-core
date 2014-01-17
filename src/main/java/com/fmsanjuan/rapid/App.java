@@ -39,10 +39,10 @@ public class App {
 
 		// Obtenci—n de proceso
 		// Process process = SampleProcesses.getRipper();
-		Process process = SampleProcesses.getRipperGolfFromExcel();
+		// Process process = SampleProcesses.getRipperGolfFromExcel();
 		// Process process = SampleProcesses.getDecisionTreeToRules();
 		// Process process = SampleProcesses.getSubgroupDiscretization();
-		// Process process = GenericProcesses.getRipper();
+		Process process = GenericProcesses.getRipper();
 
 		try {
 			IOContainer prueba = process.run();

@@ -6,8 +6,9 @@ import java.util.List;
 import com.rapidminer.Process;
 import com.rapidminer.operator.Operator;
 import com.rapidminer.operator.OperatorCreationException;
-import com.rapidminer.operator.io.ExcelExampleSource;
 import com.rapidminer.operator.learner.rules.RuleLearner;
+import com.rapidminer.operator.nio.ExcelExampleSource;
+import com.rapidminer.operator.ports.metadata.CompatibilityLevel;
 import com.rapidminer.operator.preprocessing.filter.ChangeAttributeRole;
 import com.rapidminer.tools.OperatorService;
 
@@ -20,9 +21,6 @@ public class GenericProcesses {
 			String fileSrc = "/Users/felix/03.TFG/DatosDeEjemplo/golf.xlsx";
 			Operator excelDataReader = OperatorService
 					.createOperator(ExcelExampleSource.class);
-			// OperatorDescription operatorDescription = new
-			// OperatorDescription(fullyQualifiedGroupKey, key, clazz,
-			// classLoader, iconName, provider)
 			excelDataReader.setParameter(
 					ExcelExampleSource.PARAMETER_EXCEL_FILE, fileSrc);
 
@@ -58,6 +56,7 @@ public class GenericProcesses {
 			process.getRootOperator().getSubprocess(0)
 					.addOperator(ruleInductionOperator);
 
+			/* Connecting operators */
 			excelDataReader
 					.getOutputPorts()
 					.getPortByName("output")
@@ -70,10 +69,13 @@ public class GenericProcesses {
 					.connectTo(
 							ruleInductionOperator.getInputPorts()
 									.getPortByName("training set"));
+			// Auto wire connects the last operator to result 1 automatically.
+			process.getRootOperator().getSubprocess(0)
+					.autoWire(CompatibilityLevel.VERSION_5, true, true);
 		} catch (OperatorCreationException e) {
 			e.printStackTrace();
 		}
+		System.out.println(process);
 		return process;
 	}
-
 }
