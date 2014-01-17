@@ -42,7 +42,9 @@ public class App {
 		// Process process = SampleProcesses.getRipperGolfFromExcel();
 		// Process process = SampleProcesses.getDecisionTreeToRules();
 		// Process process = SampleProcesses.getSubgroupDiscretization();
-		Process process = GenericProcesses.getRipper();
+		// Process process = GenericProcesses.getRipper();
+		Process process = GenericProcesses.getSubgroupDiscoveryDiscretization();
+		System.out.println(process);
 
 		try {
 			IOContainer prueba = process.run();
