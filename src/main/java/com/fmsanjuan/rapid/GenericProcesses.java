@@ -6,8 +6,10 @@ import java.util.List;
 import com.rapidminer.Process;
 import com.rapidminer.operator.Operator;
 import com.rapidminer.operator.OperatorCreationException;
+import com.rapidminer.operator.learner.meta.Tree2RuleConverter;
 import com.rapidminer.operator.learner.rules.RuleLearner;
 import com.rapidminer.operator.learner.subgroups.SubgroupDiscovery;
+import com.rapidminer.operator.learner.tree.DecisionTreeLearner;
 import com.rapidminer.operator.nio.ExcelExampleSource;
 import com.rapidminer.operator.ports.metadata.CompatibilityLevel;
 import com.rapidminer.operator.preprocessing.discretization.BinDiscretization;
@@ -117,6 +119,50 @@ public class GenericProcesses {
 			// Auto wire connects the last operator to result 1 automatically.
 			process.getRootOperator().getSubprocess(0)
 					.autoWire(CompatibilityLevel.VERSION_5, true, true);
+		} catch (OperatorCreationException e) {
+			e.printStackTrace();
+		}
+		return process;
+	}
+
+	public static Process getDecisionTreeToRules() {
+		Process process = new Process();
+		try {
+			/* Reading from Excel */
+			String fileSrc = "/Users/felix/03.TFG/DatosDeEjemplo/golf.xlsx";
+			Operator excelDataReader;
+			excelDataReader = OperatorService.createOperator(ExcelExampleSource.class);
+			excelDataReader.setParameter(ExcelExampleSource.PARAMETER_EXCEL_FILE, fileSrc);
+
+			/* Setting roles */
+			Operator setRoleOperator = OperatorService.createOperator(ChangeAttributeRole.class);
+			setRoleOperator.setParameter(ChangeAttributeRole.PARAMETER_NAME, "Play");
+			setRoleOperator.setParameter(ChangeAttributeRole.PARAMETER_TARGET_ROLE, "label");
+			String[] parameter1 = { "Outlook", "regular" };
+			String[] parameter2 = { "Temperature", "regular" };
+			String[] parameter3 = { "Humidity", "regular" };
+			String[] parameter4 = { "Wind", "regular" };
+			List<String[]> parameters = new ArrayList<String[]>();
+			parameters.add(parameter1);
+			parameters.add(parameter2);
+			parameters.add(parameter3);
+			parameters.add(parameter4);
+			setRoleOperator.setListParameter("set_additional_roles", parameters);
+			/* Tree to rule operator */
+			Operator treeToRuleOperator = OperatorService.createOperator(Tree2RuleConverter.class);
+			/* Decision tree operator */
+			Operator decisionTreeOperator = OperatorService
+					.createOperator(DecisionTreeLearner.class);
+			/* Adding operators */
+			process.getRootOperator().getSubprocess(0).addOperator(excelDataReader);
+			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
+			process.getRootOperator().getSubprocess(0).addOperator(treeToRuleOperator);
+			/* Connecting operators */
+			excelDataReader.getOutputPorts().getPortByName("output")
+					.connectTo(setRoleOperator.getInputPorts().getPortByName("example set input"));
+			setRoleOperator.getOutputPorts().getPortByName("example set output")
+					.connectTo(treeToRuleOperator.getInputPorts().getPortByName("training set"));
+
 		} catch (OperatorCreationException e) {
 			e.printStackTrace();
 		}
