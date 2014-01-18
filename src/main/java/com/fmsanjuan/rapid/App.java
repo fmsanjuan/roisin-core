@@ -32,10 +32,10 @@ public class App {
 		// Obtenci—n de proceso
 		// Process process = SampleProcesses.getRipper();
 		// Process process = SampleProcesses.getRipperGolfFromExcel();
-		Process process = SampleProcesses.getDecisionTreeToRules();
+		// Process process = SampleProcesses.getDecisionTreeToRules();
 		// Process process = SampleProcesses.getSubgroupDiscretization();
 		// Process process = GenericProcesses.getRipper();
-		// Process process = GenericProcesses.getDecisionTreeToRules();
+		Process process = GenericProcesses.getDecisionTreeToRules();
 		// GenericProcesses.getSubgroupDiscoveryDiscretization();
 		System.out.println(process);
 

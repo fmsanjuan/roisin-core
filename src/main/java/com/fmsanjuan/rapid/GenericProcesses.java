@@ -130,12 +130,13 @@ public class GenericProcesses {
 		try {
 			/* Reading from Excel */
 			String fileSrc = "/Users/felix/03.TFG/DatosDeEjemplo/golf.xlsx";
-			Operator excelDataReader;
+			ExcelExampleSource excelDataReader;
 			excelDataReader = OperatorService.createOperator(ExcelExampleSource.class);
 			excelDataReader.setParameter(ExcelExampleSource.PARAMETER_EXCEL_FILE, fileSrc);
 
 			/* Setting roles */
-			Operator setRoleOperator = OperatorService.createOperator(ChangeAttributeRole.class);
+			ChangeAttributeRole setRoleOperator = OperatorService
+					.createOperator(ChangeAttributeRole.class);
 			setRoleOperator.setParameter(ChangeAttributeRole.PARAMETER_NAME, "Play");
 			setRoleOperator.setParameter(ChangeAttributeRole.PARAMETER_TARGET_ROLE, "label");
 			String[] parameter1 = { "Outlook", "regular" };
@@ -149,20 +150,23 @@ public class GenericProcesses {
 			parameters.add(parameter4);
 			setRoleOperator.setListParameter("set_additional_roles", parameters);
 			/* Tree to rule operator */
-			Operator treeToRuleOperator = OperatorService.createOperator(Tree2RuleConverter.class);
+			Tree2RuleConverter treeToRuleOperator = OperatorService
+					.createOperator(Tree2RuleConverter.class);
 			/* Decision tree operator */
-			Operator decisionTreeOperator = OperatorService
+			DecisionTreeLearner decisionTreeOperator = OperatorService
 					.createOperator(DecisionTreeLearner.class);
 			/* Adding operators */
 			process.getRootOperator().getSubprocess(0).addOperator(excelDataReader);
 			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
 			process.getRootOperator().getSubprocess(0).addOperator(treeToRuleOperator);
+			treeToRuleOperator.addOperator(decisionTreeOperator, 0);
 			/* Connecting operators */
 			excelDataReader.getOutputPorts().getPortByName("output")
 					.connectTo(setRoleOperator.getInputPorts().getPortByName("example set input"));
 			setRoleOperator.getOutputPorts().getPortByName("example set output")
 					.connectTo(treeToRuleOperator.getInputPorts().getPortByName("training set"));
-
+			process.getRootOperator().getSubprocess(0)
+					.autoWire(CompatibilityLevel.VERSION_5, true, true);
 		} catch (OperatorCreationException e) {
 			e.printStackTrace();
 		}
