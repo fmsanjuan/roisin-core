@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rapidminer.Process;
-import com.rapidminer.operator.Operator;
 import com.rapidminer.operator.OperatorCreationException;
 import com.rapidminer.operator.learner.meta.Tree2RuleConverter;
 import com.rapidminer.operator.learner.rules.RuleLearner;
@@ -23,11 +22,13 @@ public class GenericProcesses {
 		try {
 			/* Reading from Excel */
 			String fileSrc = "/Users/felix/03.TFG/DatosDeEjemplo/golf.xlsx";
-			Operator excelDataReader = OperatorService.createOperator(ExcelExampleSource.class);
+			ExcelExampleSource excelDataReader = OperatorService
+					.createOperator(ExcelExampleSource.class);
 			excelDataReader.setParameter(ExcelExampleSource.PARAMETER_EXCEL_FILE, fileSrc);
 
 			/* Setting roles */
-			Operator setRuleOperator = OperatorService.createOperator(ChangeAttributeRole.class);
+			ChangeAttributeRole setRuleOperator = OperatorService
+					.createOperator(ChangeAttributeRole.class);
 			setRuleOperator.setParameter(ChangeAttributeRole.PARAMETER_NAME, "Play");
 			setRuleOperator.setParameter(ChangeAttributeRole.PARAMETER_TARGET_ROLE, "label");
 			String[] parameter1 = { "Outlook", "regular" };
@@ -43,7 +44,7 @@ public class GenericProcesses {
 			setRuleOperator.setListParameter("set_additional_roles", parameters);
 
 			/* Rule Induction */
-			Operator ruleInductionOperator = OperatorService.createOperator(RuleLearner.class);
+			RuleLearner ruleInductionOperator = OperatorService.createOperator(RuleLearner.class);
 
 			/* Adding operators */
 			process.getRootOperator().getSubprocess(0).addOperator(excelDataReader);
@@ -70,12 +71,13 @@ public class GenericProcesses {
 		try {
 			/* Reading from Excel */
 			String fileSrc = "/Users/felix/03.TFG/DatosDeEjemplo/golf.xlsx";
-			Operator excelDataReader;
+			ExcelExampleSource excelDataReader;
 			excelDataReader = OperatorService.createOperator(ExcelExampleSource.class);
 			excelDataReader.setParameter(ExcelExampleSource.PARAMETER_EXCEL_FILE, fileSrc);
 
 			/* Setting roles */
-			Operator setRoleOperator = OperatorService.createOperator(ChangeAttributeRole.class);
+			ChangeAttributeRole setRoleOperator = OperatorService
+					.createOperator(ChangeAttributeRole.class);
 			setRoleOperator.setParameter(ChangeAttributeRole.PARAMETER_NAME, "Play");
 			setRoleOperator.setParameter(ChangeAttributeRole.PARAMETER_TARGET_ROLE, "label");
 			String[] parameter1 = { "Outlook", "regular" };
@@ -91,10 +93,10 @@ public class GenericProcesses {
 			setRoleOperator.setListParameter("set_additional_roles", parameters);
 
 			/* Discretization */
-			Operator discretizationOperator = OperatorService
+			BinDiscretization discretizationOperator = OperatorService
 					.createOperator(BinDiscretization.class);
 			/* Subgroup discovery */
-			Operator subgroupDiscoveryOperator = OperatorService
+			SubgroupDiscovery subgroupDiscoveryOperator = OperatorService
 					.createOperator(SubgroupDiscovery.class);
 
 			/* Adding operators to process */
