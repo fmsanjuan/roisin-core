@@ -8,8 +8,8 @@ import com.rapidminer.Process;
 import com.rapidminer.RapidMiner;
 import com.rapidminer.RapidMiner.ExecutionMode;
 import com.rapidminer.operator.IOContainer;
-import com.rapidminer.operator.IOObject;
 import com.rapidminer.operator.OperatorException;
+import com.rapidminer.operator.learner.subgroups.RuleSet;
 
 public class App {
 
@@ -33,22 +33,20 @@ public class App {
 		// Process process = SampleProcesses.getRipper();
 		// Process process = SampleProcesses.getRipperGolfFromExcel();
 		// Process process = SampleProcesses.getDecisionTreeToRules();
-		// Process process = SampleProcesses.getSubgroupDiscretization();
+		Process process = SampleProcesses.getSubgroupDiscretization();
 		// Process process = GenericProcesses.getRipper();
-		Process process = GenericProcesses.getDecisionTreeToRules();
+		// Process process = GenericProcesses.getDecisionTreeToRules();
 		// GenericProcesses.getSubgroupDiscoveryDiscretization();
-		System.out.println(process);
+		// System.out.println(process);
 
 		try {
 			IOContainer prueba = process.run();
-			IOObject[] lista = prueba.getIOObjects();
-			System.out.println("Tama–o de la lista: " + lista.length);
 
-			for (IOObject ioObject : lista) {
-				System.out.println("IOObject: \n");
-				System.out.println(ioObject.toString());
-				System.out.println("\n");
-			}
+			// Si el resultado es un conjunto de reglas
+			// RuleModel ruleModel = (RuleModel) prueba.asList().get(0);
+			RuleSet ruleSet = (RuleSet) prueba.asList().get(0);
+
+			System.out.println(ruleSet.toString());
 
 		} catch (OperatorException ex) {
 			log.info("Se ha liado el taco al ejecutar el proceso.");
