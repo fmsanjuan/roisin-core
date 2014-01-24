@@ -1,4 +1,4 @@
-package com.fmsanjuan.rapid;
+package com.roisin.core;
 
 import java.util.ArrayList;
 import java.util.List;

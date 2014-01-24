@@ -1,4 +1,4 @@
-package com.fmsanjuan.rapid;
+package com.roisin.core;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
