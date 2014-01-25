@@ -7,7 +7,7 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>integrating-rapid</name>
+  <name>roisin-core</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -34,6 +34,10 @@
   </dependencies>
   
   <repositories>
+        <repository>
+            <id>roisin-repo</id>
+            <url>https://raw.github.com/fmsanjuan/roisin-repo/master/repository/</url>
+        </repository>
         <repository>
             <id>neil_rubens-repository</id>
             <url>https://bitbucket.org/neil_rubens/rapidminer_maven-repo/raw/master/repository/</url>
