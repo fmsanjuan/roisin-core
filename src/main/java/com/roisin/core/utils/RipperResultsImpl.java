@@ -14,7 +14,7 @@ import com.rapidminer.operator.learner.rules.RuleModel;
  * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
  * 
  */
-public class RipperResultsImpl {
+public class RipperResultsImpl implements RipperResults {
 
 	/**
 	 * Rule model a partir del cual se hallar‡n los resultados.
@@ -47,11 +47,10 @@ public class RipperResultsImpl {
 		this.precisiones = populateConfidenceMap();
 	}
 
-	/**
-	 * Devuelve el ruleModel.
-	 * 
-	 * @return
+	/* (non-Javadoc)
+	 * @see com.roisin.core.utils.RipperResults#getRuleModel()
 	 */
+	@Override
 	public RuleModel getRuleModel() {
 		return ruleModel;
 	}
@@ -71,12 +70,10 @@ public class RipperResultsImpl {
 		return numCasos;
 	}
 
-	/**
-	 * Devuelve el nœmero total de casos contenidos en los datos de ejemplo. El
-	 * c‡lculo se realiza a partir de la frecuencia.
-	 * 
-	 * @return numCasos nœmero total de casos
+	/* (non-Javadoc)
+	 * @see com.roisin.core.utils.RipperResults#getNumCasos()
 	 */
+	@Override
 	public int getNumCasos() {
 		return this.numCasos;
 	}
@@ -109,31 +106,26 @@ public class RipperResultsImpl {
 		return map;
 	}
 
-	/**
-	 * Devuelve una lista con los nombres de todas las predicciones posibles.
-	 * 
-	 * @return List<String> lista que contiene las predicciones
+	/* (non-Javadoc)
+	 * @see com.roisin.core.utils.RipperResults#getLabelNames()
 	 */
+	@Override
 	public List<String> getLabelNames() {
 		return ruleModel.getLabel().getMapping().getValues();
 	}
 
-	/**
-	 * Devuelve la precisi—n de la regla.
-	 * 
-	 * @param rule
-	 * @return
+	/* (non-Javadoc)
+	 * @see com.roisin.core.utils.RipperResults#getRuleConfidence(com.rapidminer.operator.learner.rules.Rule)
 	 */
+	@Override
 	public Double getRuleConfidence(Rule rule) {
 		return precisiones.get(rule);
 	}
 
-	/**
-	 * Devuelve el soporte de la regla
-	 * 
-	 * @param rule
-	 * @return
+	/* (non-Javadoc)
+	 * @see com.roisin.core.utils.RipperResults#getRuleSupport(com.rapidminer.operator.learner.rules.Rule)
 	 */
+	@Override
 	public Double getRuleSupport(Rule rule) {
 		return soportes.get(rule);
 	}
