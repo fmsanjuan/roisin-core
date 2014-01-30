@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.3.015">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.3.015" expanded="true" name="Process">
+    <process expanded="true">
+      <operator activated="true" class="retrieve" compatibility="5.3.015" expanded="true" height="60" name="Retrieve Ripley-Set" width="90" x="45" y="165">
+        <parameter key="repository_entry" value="//Samples/data/Ripley-Set"/>
+      </operator>
+      <operator activated="true" class="discretize_by_bins" compatibility="5.3.015" expanded="true" height="94" name="Discretize" width="90" x="246" y="165"/>
+      <operator activated="true" class="subgroup_discovery" compatibility="5.3.015" expanded="true" height="76" name="Subgroup Discovery" width="90" x="447" y="120"/>
+      <connect from_op="Retrieve Ripley-Set" from_port="output" to_op="Discretize" to_port="example set input"/>
+      <connect from_op="Discretize" from_port="example set output" to_op="Subgroup Discovery" to_port="training set"/>
+      <connect from_op="Discretize" from_port="original" to_port="result 2"/>
+      <connect from_op="Subgroup Discovery" from_port="model" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <portSpacing port="sink_result 3" spacing="0"/>
+    </process>
+  </operator>
+</process>

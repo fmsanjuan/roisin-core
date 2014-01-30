@@ -7,9 +7,15 @@ import org.jfree.util.Log;
 import com.rapidminer.Process;
 import com.rapidminer.RapidMiner;
 import com.rapidminer.RapidMiner.ExecutionMode;
+import com.rapidminer.example.ExampleSet;
 import com.rapidminer.operator.IOContainer;
 import com.rapidminer.operator.OperatorException;
+import com.rapidminer.operator.learner.rules.RuleModel;
+import com.rapidminer.operator.learner.subgroups.RuleSet;
 import com.roisin.core.processes.SampleProcesses;
+import com.roisin.core.results.RipperResults;
+import com.roisin.core.results.SubgroupResults;
+import com.roisin.core.utils.Utils;
 
 public class App {
 
@@ -30,21 +36,34 @@ public class App {
 		Log.info("Rapidminer iniciado");
 
 		// Obtenci—n de proceso
-		Process process = SampleProcesses.getRipper();
+		// Process process = SampleProcesses.getRipper();
 		// Process process = SampleProcesses.getRipperGolfFromExcel();
 		// Process process = SampleProcesses.getDecisionTreeToRules();
 		// Process process = SampleProcesses.getSubgroupDiscretization();
-		// Process process = SampleProcesses.getRipperSonnar();
+		Process process1 = SampleProcesses.getSubgroupDiscretizationRipley();
+		Process process2 = SampleProcesses.getRipperSonnar();
 		// Process process = GenericProcesses.getRipper();
 		// Process process = GenericProcesses.getDecisionTreeToRules();
+		// Process process =
 		// GenericProcesses.getSubgroupDiscoveryDiscretization();
 		// System.out.println(process);
 
 		try {
-			IOContainer prueba = process.run();
+			IOContainer prueba = process1.run();
 
 			// Si el resultado es un conjunto de reglas
-			// RuleSet ruleSet = (RuleSet) prueba.asList().get(0);
+			RuleSet ruleSet = (RuleSet) prueba.asList().get(0);
+			ExampleSet exampleSet = (ExampleSet) prueba.asList().get(1);
+
+			SubgroupResults subgroupResults = new SubgroupResults(ruleSet,
+					Utils.getNumCasosTotalFromExampleSet(exampleSet));
+
+			IOContainer prueba2 = process2.run();
+
+			RuleModel ruleModel = (RuleModel) prueba2.asList().get(0);
+			RipperResults ripperResults = new RipperResults(ruleModel);
+
+			System.out.println("Estamos vivos");
 
 			// //////////////////////////////////////////////
 			// Extracci—n de informaci—n de un rule Model.//

@@ -1,4 +1,4 @@
-package com.roisin.core.utils;
+package com.roisin.core.results;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,45 +14,23 @@ import com.rapidminer.operator.learner.rules.RuleModel;
  * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
  * 
  */
-public class RipperResultsImpl implements RipperResults {
+public class RipperResults extends AbstractResults<Rule> {
 
 	/**
 	 * Rule model a partir del cual se hallar‡n los resultados.
 	 */
 	private RuleModel ruleModel;
 
-	private int numCasos;
-
-	private Map<Rule, Double> soportes;
-
-	private Map<Rule, Double> precisiones;
-
-	/**
-	 * Constructor vac’o.
-	 */
-	public RipperResultsImpl() {
-		throw new IllegalArgumentException(
-				"El objeto Ripper results necesita un rule model, se est‡ llamando al constructor vac’o.");
-	}
-
 	/**
 	 * Constructor pœblico.
 	 * 
 	 * @param ruleModel
 	 */
-	public RipperResultsImpl(RuleModel ruleModel) {
+	public RipperResults(RuleModel ruleModel) {
 		this.ruleModel = ruleModel;
 		this.numCasos = calculateNumCasos();
 		this.soportes = populateSupportMap();
 		this.precisiones = populateConfidenceMap();
-	}
-
-	/* (non-Javadoc)
-	 * @see com.roisin.core.utils.RipperResults#getRuleModel()
-	 */
-	@Override
-	public RuleModel getRuleModel() {
-		return ruleModel;
 	}
 
 	/**
@@ -70,7 +48,9 @@ public class RipperResultsImpl implements RipperResults {
 		return numCasos;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.roisin.core.utils.RipperResults#getNumCasos()
 	 */
 	@Override
@@ -106,28 +86,14 @@ public class RipperResultsImpl implements RipperResults {
 		return map;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.roisin.core.utils.RipperResults#getLabelNames()
 	 */
 	@Override
 	public List<String> getLabelNames() {
 		return ruleModel.getLabel().getMapping().getValues();
-	}
-
-	/* (non-Javadoc)
-	 * @see com.roisin.core.utils.RipperResults#getRuleConfidence(com.rapidminer.operator.learner.rules.Rule)
-	 */
-	@Override
-	public Double getRuleConfidence(Rule rule) {
-		return precisiones.get(rule);
-	}
-
-	/* (non-Javadoc)
-	 * @see com.roisin.core.utils.RipperResults#getRuleSupport(com.rapidminer.operator.learner.rules.Rule)
-	 */
-	@Override
-	public Double getRuleSupport(Rule rule) {
-		return soportes.get(rule);
 	}
 
 }
