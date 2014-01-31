@@ -81,7 +81,7 @@ public class RipperResults extends AbstractResults<Rule> {
 		Map<Rule, Double> map = new HashMap<Rule, Double>();
 		for (Rule rule : ruleModel.getRules()) {
 			int labelIndex = getLabelNames().indexOf(rule.getLabel());
-			map.put(rule, new Double(rule.getFrequencies()[labelIndex] / getNumCasos()));
+			map.put(rule, new Double(new Double(rule.getFrequencies()[labelIndex]) / getNumCasos()));
 		}
 		return map;
 	}

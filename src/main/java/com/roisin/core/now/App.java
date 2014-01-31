@@ -12,6 +12,8 @@ import com.rapidminer.operator.IOContainer;
 import com.rapidminer.operator.OperatorException;
 import com.rapidminer.operator.learner.rules.RuleModel;
 import com.rapidminer.operator.learner.subgroups.RuleSet;
+import com.rapidminer.operator.learner.subgroups.hypothesis.Rule;
+import com.roisin.core.processes.GenericProcesses;
 import com.roisin.core.processes.SampleProcesses;
 import com.roisin.core.results.RipperResults;
 import com.roisin.core.results.SubgroupResults;
@@ -43,7 +45,7 @@ public class App {
 		Process process1 = SampleProcesses.getSubgroupDiscretizationRipley();
 		Process process2 = SampleProcesses.getRipperSonnar();
 		// Process process = GenericProcesses.getRipper();
-		// Process process = GenericProcesses.getDecisionTreeToRules();
+		Process process3 = GenericProcesses.getDecisionTreeToRules();
 		// Process process =
 		// GenericProcesses.getSubgroupDiscoveryDiscretization();
 		// System.out.println(process);
@@ -63,7 +65,34 @@ public class App {
 			RuleModel ruleModel = (RuleModel) prueba2.asList().get(0);
 			RipperResults ripperResults = new RipperResults(ruleModel);
 
-			System.out.println("Estamos vivos");
+			IOContainer prueba3 = process2.run();
+
+			RuleModel ruleModel2 = (RuleModel) prueba3.asList().get(0);
+			RipperResults ripperResults2 = new RipperResults(ruleModel2);
+
+			System.out.println("Primer proceso, Subgroup con Ripley:");
+			for (int i = 0; i < ruleSet.getNumberOfRules(); i++) {
+				Rule rule = ruleSet.getRule(i);
+				System.out.println(rule);
+				System.out.println("Soporte: " + subgroupResults.getRuleSupport(rule));
+				System.out.println("Precisi—n: " + subgroupResults.getRuleConfidence(rule));
+			}
+
+			System.out.println("\nSegundo proceso, Ripper con Sonar:");
+			for (int i = 0; i < ruleModel.getRules().size(); i++) {
+				com.rapidminer.operator.learner.rules.Rule rule = ruleModel.getRules().get(i);
+				System.out.println(rule);
+				System.out.println("Soporte: " + ripperResults.getRuleSupport(rule));
+				System.out.println("Precisi—n: " + ripperResults.getRuleConfidence(rule));
+			}
+
+			System.out.println("\nTercer proceso, TreeToRules con Golf:");
+			for (int i = 0; i < ruleModel2.getRules().size(); i++) {
+				com.rapidminer.operator.learner.rules.Rule rule = ruleModel2.getRules().get(i);
+				System.out.println(rule);
+				System.out.println("Soporte: " + ripperResults2.getRuleSupport(rule));
+				System.out.println("Precisi—n: " + ripperResults2.getRuleConfidence(rule));
+			}
 
 			// //////////////////////////////////////////////
 			// Extracci—n de informaci—n de un rule Model.//
