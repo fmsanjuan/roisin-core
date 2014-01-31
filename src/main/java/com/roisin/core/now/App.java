@@ -99,6 +99,21 @@ public class App {
 					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava/heythere.arff");
 			conversion.run();
 
+			Process conversion2 = DataTransformation.convertArffToExcel(
+					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava/heythere.arff",
+					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava/heytherethisworks.xls");
+			conversion2.run();
+
+			Process conversion3 = DataTransformation.convertExcelToXrff(
+					"/Users/felix/03.TFG/DatosDeEjemplo/golf.xlsx",
+					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava2/golf.xrff");
+			conversion3.run();
+
+			Process conversion4 = DataTransformation.convertXrffToExcel(
+					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava2/golf.xrff",
+					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava2/thisisworking.xls");
+			conversion4.run();
+
 		} catch (OperatorException ex) {
 			log.error("Error en la ejecuci—n de un proceso");
 		}
