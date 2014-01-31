@@ -1,7 +1,6 @@
 package com.roisin.core.now;
 
-import java.util.logging.Logger;
-
+import org.apache.log4j.Logger;
 import org.jfree.util.Log;
 
 import com.rapidminer.Process;
@@ -13,6 +12,7 @@ import com.rapidminer.operator.OperatorException;
 import com.rapidminer.operator.learner.rules.RuleModel;
 import com.rapidminer.operator.learner.subgroups.RuleSet;
 import com.rapidminer.operator.learner.subgroups.hypothesis.Rule;
+import com.roisin.core.processes.DataTransformation;
 import com.roisin.core.processes.GenericProcesses;
 import com.roisin.core.processes.SampleProcesses;
 import com.roisin.core.results.RipperResults;
@@ -24,7 +24,7 @@ public class App {
 	/**
 	 * Trial Log
 	 */
-	public static Logger log = Logger.getAnonymousLogger();
+	public static Logger log = Logger.getLogger(App.class);
 
 	public static void main(String[] args) {
 		// Iniciando rapidminer
@@ -94,42 +94,13 @@ public class App {
 				System.out.println("Precisi—n: " + ripperResults2.getRuleConfidence(rule));
 			}
 
-			// //////////////////////////////////////////////
-			// Extracci—n de informaci—n de un rule Model.//
-			// //////////////////////////////////////////////
-			// RuleModel ruleModel = (RuleModel) prueba.asList().get(0);
-			// System.out.println("\nCon bucle\n");
-			// // Variable inicial con el nœmero registros de los datos de
-			// ejemplo.
-			// int numCasos = 0;
-			// // Predicciones posibles
-			// List<String> labelNames =
-			// ruleModel.getLabel().getMapping().getValues();
-			// // C‡lculo del nœmero de registros de los datos de ejemplo a
-			// partir
-			// // de la frecuencia de todas las reglas.
-			// for (Rule rule : ruleModel.getRules()) {
-			// int[] ruleFrequencies = rule.getFrequencies();
-			// numCasos += ruleFrequencies[0] + ruleFrequencies[1];
-			// }
-			// System.out.println("Existen " + numCasos + " casos");
-			//
-			// for (Rule rule : ruleModel.getRules()) {
-			// int ruleNum = ruleModel.getRules().indexOf(rule);
-			// System.out.println("Regla nœmero " + ruleNum);
-			// System.out.println(rule);
-			// double[] ruleConfidences = rule.getConfidences();
-			// int labelIndex = labelNames.indexOf(rule.getLabel());
-			// System.out.println("La precisi—n de la regla nœmero " + ruleNum +
-			// " es de "
-			// + ruleConfidences[labelIndex]);
-			// int[] ruleFrequencies = rule.getFrequencies();
-			// System.out.println("El soporte de la regla nœmero " + ruleNum +
-			// " es de "
-			// + new Double(ruleFrequencies[labelIndex]) / numCasos);
-			// }
+			Process conversion = DataTransformation.convertExcelToArff(
+					"/Users/felix/03.TFG/DatosDeEjemplo/golf.xlsx",
+					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava/heythere.arff");
+			conversion.run();
+
 		} catch (OperatorException ex) {
-			log.info("Se ha liado el taco al ejecutar el proceso.");
+			log.error("Error en la ejecuci—n de un proceso");
 		}
 	}
 }
