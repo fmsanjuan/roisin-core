@@ -65,7 +65,7 @@ public class App {
 			RuleModel ruleModel = (RuleModel) prueba2.asList().get(0);
 			RipperResults ripperResults = new RipperResults(ruleModel);
 
-			IOContainer prueba3 = process2.run();
+			IOContainer prueba3 = process3.run();
 
 			RuleModel ruleModel2 = (RuleModel) prueba3.asList().get(0);
 			RipperResults ripperResults2 = new RipperResults(ruleModel2);
