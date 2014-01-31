@@ -94,25 +94,35 @@ public class App {
 				System.out.println("Precisi—n: " + ripperResults2.getRuleConfidence(rule));
 			}
 
-			Process conversion = DataTransformation.convertExcelToArff(
+			// Process conversion = DataTransformation.convertExcelToArff(
+			// "/Users/felix/03.TFG/DatosDeEjemplo/golf.xlsx",
+			// "/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava/heythere.arff");
+			// conversion.run();
+			//
+			// Process conversion2 = DataTransformation.convertArffToExcel(
+			// "/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava/heythere.arff",
+			// "/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava/heytherethisworks.xls");
+			// conversion2.run();
+			//
+			// Process conversion3 = DataTransformation.convertExcelToXrff(
+			// "/Users/felix/03.TFG/DatosDeEjemplo/golf.xlsx",
+			// "/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava2/golf.xrff");
+			// conversion3.run();
+			//
+			// Process conversion4 = DataTransformation.convertXrffToExcel(
+			// "/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava2/golf.xrff",
+			// "/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava2/thisisworking.xls");
+			// conversion4.run();
+
+			Process conversion5 = DataTransformation.convertExcelToCsv(
 					"/Users/felix/03.TFG/DatosDeEjemplo/golf.xlsx",
-					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava/heythere.arff");
-			conversion.run();
+					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava3/hellothere.csv");
+			conversion5.run();
 
-			Process conversion2 = DataTransformation.convertArffToExcel(
-					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava/heythere.arff",
-					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava/heytherethisworks.xls");
-			conversion2.run();
-
-			Process conversion3 = DataTransformation.convertExcelToXrff(
-					"/Users/felix/03.TFG/DatosDeEjemplo/golf.xlsx",
-					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava2/golf.xrff");
-			conversion3.run();
-
-			Process conversion4 = DataTransformation.convertXrffToExcel(
-					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava2/golf.xrff",
-					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava2/thisisworking.xls");
-			conversion4.run();
+			Process conversion6 = DataTransformation.convertCsvToExcel(
+					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava3/hellothere.csv",
+					"/Users/felix/03.TFG/DatosDeEjemplo/heytherefromjava3/thisisworking.xls");
+			conversion6.run();
 
 		} catch (OperatorException ex) {
 			log.error("Error en la ejecuci—n de un proceso");
