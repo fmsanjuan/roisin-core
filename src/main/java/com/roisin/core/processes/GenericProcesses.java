@@ -3,7 +3,10 @@ package com.roisin.core.processes;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.rapidminer.Process;
+import com.rapidminer.operator.Operator;
 import com.rapidminer.operator.OperatorCreationException;
 import com.rapidminer.operator.learner.meta.Tree2RuleConverter;
 import com.rapidminer.operator.learner.rules.RuleLearner;
@@ -14,8 +17,11 @@ import com.rapidminer.operator.ports.metadata.CompatibilityLevel;
 import com.rapidminer.operator.preprocessing.discretization.BinDiscretization;
 import com.rapidminer.operator.preprocessing.filter.ChangeAttributeRole;
 import com.rapidminer.tools.OperatorService;
+import com.roisin.core.utils.Constants;
 
 public class GenericProcesses {
+
+	private static Logger log = Logger.getLogger(GenericProcesses.class);
 
 	public static Process getRipper() {
 		Process process = new Process();
@@ -60,9 +66,34 @@ public class GenericProcesses {
 			process.getRootOperator().getSubprocess(0)
 					.autoWire(CompatibilityLevel.VERSION_5, true, true);
 		} catch (OperatorCreationException e) {
-			e.printStackTrace();
+			log.error("No ha sido posible crear el proceso para usar el algoritmo Ripper");
 		}
 		System.out.println(process);
+		return process;
+	}
+
+	public static Process getRipper(String sourceFormat, String sourcePath, String label) {
+		Process process = new Process();
+		Operator reader = Preprocessing.getReader(sourceFormat, sourcePath);
+		/* Setting roles */
+		ChangeAttributeRole setRuleOperator;
+		try {
+			setRuleOperator = OperatorService.createOperator(ChangeAttributeRole.class);
+			setRuleOperator.setParameter(ChangeAttributeRole.PARAMETER_NAME, label);
+			setRuleOperator
+					.setParameter(ChangeAttributeRole.PARAMETER_TARGET_ROLE, Constants.LABEL);
+			/* Rule Induction */
+			RuleLearner ruleInductionOperator = OperatorService.createOperator(RuleLearner.class);
+			/* Adding operators */
+			process.getRootOperator().getSubprocess(0).addOperator(reader);
+			process.getRootOperator().getSubprocess(0).addOperator(setRuleOperator);
+			process.getRootOperator().getSubprocess(0).addOperator(ruleInductionOperator);
+			// Auto wire connects the last operator to result 1 automatically.
+			process.getRootOperator().getSubprocess(0)
+					.autoWire(CompatibilityLevel.VERSION_5, true, true);
+		} catch (OperatorCreationException e) {
+			log.error("No ha sido posible crear el proceso para usar el algoritmo Ripper");
+		}
 		return process;
 	}
 
@@ -122,7 +153,7 @@ public class GenericProcesses {
 			process.getRootOperator().getSubprocess(0)
 					.autoWire(CompatibilityLevel.VERSION_5, true, true);
 		} catch (OperatorCreationException e) {
-			e.printStackTrace();
+			log.error("No ha sido posible crear el proceso para usar el algoritmo Subgroup Discovery");
 		}
 		return process;
 	}
@@ -170,7 +201,7 @@ public class GenericProcesses {
 			process.getRootOperator().getSubprocess(0)
 					.autoWire(CompatibilityLevel.VERSION_5, true, true);
 		} catch (OperatorCreationException e) {
-			e.printStackTrace();
+			log.error("No ha sido posible crear el proceso para usar el algoritmo Tree to Rules");
 		}
 		return process;
 	}
