@@ -1,5 +1,7 @@
 package com.roisin.core.now;
 
+import java.util.LinkedList;
+
 import org.apache.log4j.Logger;
 import org.jfree.util.Log;
 
@@ -49,8 +51,14 @@ public class App {
 		// Process process =
 		// GenericProcesses.getSubgroupDiscoveryDiscretization();
 
+		LinkedList<String> atributos = new LinkedList<String>();
+		atributos.add("Outlook");
+		atributos.add("Temperature");
+		atributos.add("Humidity");
+		atributos.add("Play");
 		Process process4 = GenericProcesses.getRipper(Constants.CSV_FORMAT,
-				"/Users/felix/03.TFG/DatosDeEjemplo/exportando/prueba-excel-csv.csv", "Play");
+				"/Users/felix/03.TFG/DatosDeEjemplo/exportando/prueba-excel-csv.csv", "Play",
+				"Outlook!=overcast", atributos);
 
 		try {
 			IOContainer prueba = process1.run();

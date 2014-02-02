@@ -72,9 +72,11 @@ public class GenericProcesses {
 		return process;
 	}
 
-	public static Process getRipper(String sourceFormat, String sourcePath, String label) {
+	public static Process getRipper(String sourceFormat, String sourcePath, String label,
+			String filterCondition, List<String> attributeSelection) {
 		Process process = new Process();
 		Operator reader = Preprocessing.getReader(sourceFormat, sourcePath);
+
 		/* Setting roles */
 		ChangeAttributeRole setRuleOperator;
 		try {
@@ -86,6 +88,18 @@ public class GenericProcesses {
 			RuleLearner ruleInductionOperator = OperatorService.createOperator(RuleLearner.class);
 			/* Adding operators */
 			process.getRootOperator().getSubprocess(0).addOperator(reader);
+			// Filtering
+			if (filterCondition != null) {
+				process.getRootOperator().getSubprocess(0)
+						.addOperator(Preprocessing.getExampleFilter(filterCondition));
+			}
+			if (attributeSelection != null && !attributeSelection.isEmpty()
+					&& attributeSelection.contains(label)) {
+				process.getRootOperator().getSubprocess(0)
+						.addOperator(Preprocessing.getAttributeSelection(attributeSelection));
+			} else if (!attributeSelection.contains(label)) {
+				throw new IllegalArgumentException("Se est‡ filtrando sin incluir la clase");
+			}
 			process.getRootOperator().getSubprocess(0).addOperator(setRuleOperator);
 			process.getRootOperator().getSubprocess(0).addOperator(ruleInductionOperator);
 			// Auto wire connects the last operator to result 1 automatically.
