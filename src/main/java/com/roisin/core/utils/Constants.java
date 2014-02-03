@@ -14,4 +14,6 @@ public class Constants {
 
 	public static String LABEL = "label";
 
+	public static String PORT_ORIGINAL = "original";
+
 }

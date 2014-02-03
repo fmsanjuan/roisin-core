@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.rapidminer.Process;
-import com.rapidminer.operator.Operator;
 import com.rapidminer.operator.OperatorCreationException;
 import com.rapidminer.operator.learner.meta.Tree2RuleConverter;
 import com.rapidminer.operator.learner.rules.RuleLearner;
@@ -18,6 +17,8 @@ import com.rapidminer.operator.preprocessing.discretization.BinDiscretization;
 import com.rapidminer.operator.preprocessing.filter.ChangeAttributeRole;
 import com.rapidminer.tools.OperatorService;
 import com.roisin.core.utils.Constants;
+
+import exception.RoisinException;
 
 public class GenericProcesses {
 
@@ -74,39 +75,27 @@ public class GenericProcesses {
 
 	public static Process getRipper(String sourceFormat, String sourcePath, String label,
 			String filterCondition, List<String> attributeSelection) {
-		Process process = new Process();
-		Operator reader = Preprocessing.getReader(sourceFormat, sourcePath);
-
-		/* Setting roles */
-		ChangeAttributeRole setRuleOperator;
+		Process process = null;
 		try {
-			setRuleOperator = OperatorService.createOperator(ChangeAttributeRole.class);
-			setRuleOperator.setParameter(ChangeAttributeRole.PARAMETER_NAME, label);
-			setRuleOperator
+			process = Preprocessing.getPreprocessedData(sourceFormat, sourcePath, filterCondition,
+					attributeSelection, label);
+			/* Setting roles */
+			ChangeAttributeRole setRoleOperator = OperatorService
+					.createOperator(ChangeAttributeRole.class);
+			setRoleOperator.setParameter(ChangeAttributeRole.PARAMETER_NAME, label);
+			setRoleOperator
 					.setParameter(ChangeAttributeRole.PARAMETER_TARGET_ROLE, Constants.LABEL);
 			/* Rule Induction */
 			RuleLearner ruleInductionOperator = OperatorService.createOperator(RuleLearner.class);
-			/* Adding operators */
-			process.getRootOperator().getSubprocess(0).addOperator(reader);
-			// Filtering
-			if (filterCondition != null) {
-				process.getRootOperator().getSubprocess(0)
-						.addOperator(Preprocessing.getExampleFilter(filterCondition));
-			}
-			if (attributeSelection != null && !attributeSelection.isEmpty()
-					&& attributeSelection.contains(label)) {
-				process.getRootOperator().getSubprocess(0)
-						.addOperator(Preprocessing.getAttributeSelection(attributeSelection));
-			} else if (!attributeSelection.contains(label)) {
-				throw new IllegalArgumentException("Se est‡ filtrando sin incluir la clase");
-			}
-			process.getRootOperator().getSubprocess(0).addOperator(setRuleOperator);
+			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
 			process.getRootOperator().getSubprocess(0).addOperator(ruleInductionOperator);
 			// Auto wire connects the last operator to result 1 automatically.
 			process.getRootOperator().getSubprocess(0)
 					.autoWire(CompatibilityLevel.VERSION_5, true, true);
 		} catch (OperatorCreationException e) {
 			log.error("No ha sido posible crear el proceso para usar el algoritmo Ripper");
+		} catch (RoisinException e) {
+			log.error("Error en la obtenci—n del proceso para el algoritmo ripper => " + e);
 		}
 		return process;
 	}
@@ -172,6 +161,46 @@ public class GenericProcesses {
 		return process;
 	}
 
+	public static Process getSubgroupDiscoveryDiscretization(String sourceFormat,
+			String sourcePath, String label, String filterCondition, List<String> attributeSelection) {
+		Process process = null;
+		try {
+			process = Preprocessing.getPreprocessedData(sourceFormat, sourcePath, filterCondition,
+					attributeSelection, label);
+			/* Setting roles */
+			ChangeAttributeRole setRoleOperator = OperatorService
+					.createOperator(ChangeAttributeRole.class);
+			setRoleOperator.setParameter(ChangeAttributeRole.PARAMETER_NAME, label);
+			setRoleOperator
+					.setParameter(ChangeAttributeRole.PARAMETER_TARGET_ROLE, Constants.LABEL);
+			/* Discretization */
+			BinDiscretization discretizationOperator = OperatorService
+					.createOperator(BinDiscretization.class);
+			/* Subgroup discovery */
+			SubgroupDiscovery subgroupDiscoveryOperator = OperatorService
+					.createOperator(SubgroupDiscovery.class);
+			// Adding operators
+			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
+			process.getRootOperator().getSubprocess(0).addOperator(discretizationOperator);
+			process.getRootOperator().getSubprocess(0).addOperator(subgroupDiscoveryOperator);
+			// Auto wire connects the last operator to result 1 automatically.
+			discretizationOperator
+					.getOutputPorts()
+					.getPortByName(Constants.PORT_ORIGINAL)
+					.connectTo(
+							process.getRootOperator().getSubprocess(0).getInnerSinks()
+									.getPortByName("result 2"));
+			process.getRootOperator().getSubprocess(0)
+					.autoWire(CompatibilityLevel.VERSION_5, true, true);
+		} catch (OperatorCreationException e) {
+			log.error("No ha sido posible crear el proceso para usar el algoritmo Subgroup Discovery");
+		} catch (RoisinException e) {
+			log.error("Error en la obtenci—n del proceso para el algoritmo Subgroup Discovery => "
+					+ e);
+		}
+		return process;
+	}
+
 	public static Process getDecisionTreeToRules() {
 		Process process = new Process();
 		try {
@@ -216,6 +245,39 @@ public class GenericProcesses {
 					.autoWire(CompatibilityLevel.VERSION_5, true, true);
 		} catch (OperatorCreationException e) {
 			log.error("No ha sido posible crear el proceso para usar el algoritmo Tree to Rules");
+		}
+		return process;
+	}
+
+	public static Process getDecisionTreeToRules(String sourceFormat, String sourcePath,
+			String label, String filterCondition, List<String> attributeSelection) {
+		Process process = null;
+		try {
+			process = Preprocessing.getPreprocessedData(sourceFormat, sourcePath, filterCondition,
+					attributeSelection, label);
+			/* Setting roles */
+			ChangeAttributeRole setRoleOperator = OperatorService
+					.createOperator(ChangeAttributeRole.class);
+			setRoleOperator.setParameter(ChangeAttributeRole.PARAMETER_NAME, label);
+			setRoleOperator
+					.setParameter(ChangeAttributeRole.PARAMETER_TARGET_ROLE, Constants.LABEL);
+			/* Tree to rule operator */
+			Tree2RuleConverter treeToRuleOperator = OperatorService
+					.createOperator(Tree2RuleConverter.class);
+			/* Decision tree operator */
+			DecisionTreeLearner decisionTreeOperator = OperatorService
+					.createOperator(DecisionTreeLearner.class);
+			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
+			process.getRootOperator().getSubprocess(0).addOperator(treeToRuleOperator);
+			treeToRuleOperator.addOperator(decisionTreeOperator, 0);
+			// Auto wire connects the last operator to result 1 automatically.
+			process.getRootOperator().getSubprocess(0)
+					.autoWire(CompatibilityLevel.VERSION_5, true, true);
+		} catch (OperatorCreationException e) {
+			log.error("No ha sido posible crear el proceso para usar el algoritmo Subgroup Discovery");
+		} catch (RoisinException e) {
+			log.error("Error en la obtenci—n del proceso para el algoritmo Subgroup Discovery => "
+					+ e);
 		}
 		return process;
 	}

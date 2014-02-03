@@ -11,12 +11,9 @@ import com.rapidminer.RapidMiner.ExecutionMode;
 import com.rapidminer.example.ExampleSet;
 import com.rapidminer.operator.IOContainer;
 import com.rapidminer.operator.OperatorException;
-import com.rapidminer.operator.learner.rules.RuleModel;
 import com.rapidminer.operator.learner.subgroups.RuleSet;
 import com.rapidminer.operator.learner.subgroups.hypothesis.Rule;
 import com.roisin.core.processes.GenericProcesses;
-import com.roisin.core.processes.SampleProcesses;
-import com.roisin.core.results.RipperResults;
 import com.roisin.core.results.SubgroupResults;
 import com.roisin.core.utils.Constants;
 import com.roisin.core.utils.Utils;
@@ -44,10 +41,10 @@ public class App {
 		// Process process = SampleProcesses.getRipperGolfFromExcel();
 		// Process process = SampleProcesses.getDecisionTreeToRules();
 		// Process process = SampleProcesses.getSubgroupDiscretization();
-		Process process1 = SampleProcesses.getSubgroupDiscretizationRipley();
-		Process process2 = SampleProcesses.getRipperSonnar();
+		// Process process1 = SampleProcesses.getSubgroupDiscretizationRipley();
+		// Process process2 = SampleProcesses.getRipperSonnar();
 		// Process process = GenericProcesses.getRipper();
-		Process process3 = GenericProcesses.getDecisionTreeToRules();
+		// Process process3 = GenericProcesses.getDecisionTreeToRules();
 		// Process process =
 		// GenericProcesses.getSubgroupDiscoveryDiscretization();
 
@@ -56,63 +53,82 @@ public class App {
 		atributos.add("Temperature");
 		atributos.add("Humidity");
 		atributos.add("Play");
-		Process process4 = GenericProcesses.getRipper(Constants.CSV_FORMAT,
-				"/Users/felix/03.TFG/DatosDeEjemplo/exportando/prueba-excel-csv.csv", "Play",
-				"Outlook!=overcast", atributos);
+
+		String path = "/Users/felix/03.TFG/DatosDeEjemplo/exportando/prueba-excel-csv.csv";
+		String label = "Play";
+		String condition = "Outlook!=overcast";
+
+		// Process process4 = GenericProcesses.getRipper(Constants.CSV_FORMAT,
+		// path, label, condition,
+		// atributos);
+
+		Process process1 = GenericProcesses.getSubgroupDiscoveryDiscretization(
+				Constants.CSV_FORMAT, path, label, condition, atributos);
+
+		// Process process3 =
+		// GenericProcesses.getDecisionTreeToRules(Constants.CSV_FORMAT, path,
+		// label, condition, atributos);
 
 		try {
 			IOContainer prueba = process1.run();
-
 			// Si el resultado es un conjunto de reglas
 			RuleSet ruleSet = (RuleSet) prueba.asList().get(0);
 			ExampleSet exampleSet = (ExampleSet) prueba.asList().get(1);
-
 			SubgroupResults subgroupResults = new SubgroupResults(ruleSet,
 					Utils.getNumCasosTotalFromExampleSet(exampleSet));
+			//
+			// IOContainer prueba2 = process2.run();
+			// RuleModel ruleModel = (RuleModel) prueba2.asList().get(0);
+			// RipperResults ripperResults = new RipperResults(ruleModel);
+			//
+			// IOContainer prueba3 = process3.run();
+			// RuleModel ruleModel2 = (RuleModel) prueba3.asList().get(0);
+			// RipperResults ripperResults2 = new RipperResults(ruleModel2);
+			//
+			// IOContainer prueba4 = process4.run();
+			// RuleModel ruleModel4 = (RuleModel) prueba4.asList().get(0);
+			// RipperResults ripperResults4 = new RipperResults(ruleModel4);
 
-			IOContainer prueba2 = process2.run();
-			RuleModel ruleModel = (RuleModel) prueba2.asList().get(0);
-			RipperResults ripperResults = new RipperResults(ruleModel);
-
-			IOContainer prueba3 = process3.run();
-			RuleModel ruleModel2 = (RuleModel) prueba3.asList().get(0);
-			RipperResults ripperResults2 = new RipperResults(ruleModel2);
-
-			IOContainer prueba4 = process4.run();
-			RuleModel ruleModel3 = (RuleModel) prueba4.asList().get(0);
-			RipperResults ripperResults3 = new RipperResults(ruleModel3);
-
-			System.out.println("Primer proceso, Subgroup con Ripley:");
+			System.out.println("Primer proceso, Subgroup con Golf:");
 			for (int i = 0; i < ruleSet.getNumberOfRules(); i++) {
 				Rule rule = ruleSet.getRule(i);
 				System.out.println(rule);
 				System.out.println("Soporte: " + subgroupResults.getRuleSupport(rule));
 				System.out.println("Precisi—n: " + subgroupResults.getRuleConfidence(rule));
 			}
-
-			System.out.println("\nSegundo proceso, Ripper con Sonar:");
-			for (int i = 0; i < ruleModel.getRules().size(); i++) {
-				com.rapidminer.operator.learner.rules.Rule rule = ruleModel.getRules().get(i);
-				System.out.println(rule);
-				System.out.println("Soporte: " + ripperResults.getRuleSupport(rule));
-				System.out.println("Precisi—n: " + ripperResults.getRuleConfidence(rule));
-			}
-
-			System.out.println("\nTercer proceso, TreeToRules con Golf:");
-			for (int i = 0; i < ruleModel2.getRules().size(); i++) {
-				com.rapidminer.operator.learner.rules.Rule rule = ruleModel2.getRules().get(i);
-				System.out.println(rule);
-				System.out.println("Soporte: " + ripperResults2.getRuleSupport(rule));
-				System.out.println("Precisi—n: " + ripperResults2.getRuleConfidence(rule));
-			}
-
-			System.out.println("\nCuarto proceso, Ripper con Golf:");
-			for (int i = 0; i < ruleModel3.getRules().size(); i++) {
-				com.rapidminer.operator.learner.rules.Rule rule = ruleModel3.getRules().get(i);
-				System.out.println(rule);
-				System.out.println("Soporte: " + ripperResults3.getRuleSupport(rule));
-				System.out.println("Precisi—n: " + ripperResults3.getRuleConfidence(rule));
-			}
+			//
+			// System.out.println("\nSegundo proceso, Ripper con Sonar:");
+			// for (int i = 0; i < ruleModel.getRules().size(); i++) {
+			// com.rapidminer.operator.learner.rules.Rule rule =
+			// ruleModel.getRules().get(i);
+			// System.out.println(rule);
+			// System.out.println("Soporte: " +
+			// ripperResults.getRuleSupport(rule));
+			// System.out.println("Precisi—n: " +
+			// ripperResults.getRuleConfidence(rule));
+			// }
+			//
+			// System.out.println("\nTercer proceso, TreeToRules con Golf:");
+			// for (int i = 0; i < ruleModel2.getRules().size(); i++) {
+			// com.rapidminer.operator.learner.rules.Rule rule =
+			// ruleModel2.getRules().get(i);
+			// System.out.println(rule);
+			// System.out.println("Soporte: " +
+			// ripperResults2.getRuleSupport(rule));
+			// System.out.println("Precisi—n: " +
+			// ripperResults2.getRuleConfidence(rule));
+			// }
+			//
+			// System.out.println("\nCuarto proceso, Ripper con Golf:");
+			// for (int i = 0; i < ruleModel4.getRules().size(); i++) {
+			// com.rapidminer.operator.learner.rules.Rule rule =
+			// ruleModel4.getRules().get(i);
+			// System.out.println(rule);
+			// System.out.println("Soporte: " +
+			// ripperResults4.getRuleSupport(rule));
+			// System.out.println("Precisi—n: " +
+			// ripperResults4.getRuleConfidence(rule));
+			// }
 
 			// ////////////////////////////////////////////////////////
 			// //////////// Importando/Exportando /////////////////////

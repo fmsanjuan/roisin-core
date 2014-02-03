@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.rapidminer.Process;
 import com.rapidminer.operator.Operator;
 import com.rapidminer.operator.OperatorCreationException;
 import com.rapidminer.operator.io.ArffExampleSource;
@@ -14,6 +15,8 @@ import com.rapidminer.operator.preprocessing.filter.ExampleFilter;
 import com.rapidminer.operator.preprocessing.filter.attributes.AttributeFilter;
 import com.rapidminer.tools.OperatorService;
 import com.roisin.core.utils.Constants;
+
+import exception.RoisinException;
 
 public class Preprocessing {
 
@@ -102,5 +105,27 @@ public class Preprocessing {
 			log.error("No ha sido posible obtener el operador para seleccionar attributos del conjunto de datos original");
 		}
 		return attributeFilter;
+	}
+
+	public static Process getPreprocessedData(String format, String path, String filterCondition,
+			List<String> attributeSelection, String label) throws RoisinException {
+		Process process = new Process();
+		Operator reader = Preprocessing.getReader(format, path);
+		process.getRootOperator().getSubprocess(0).addOperator(reader);
+
+		/* Adding filters */
+		if (filterCondition != null) {
+			process.getRootOperator().getSubprocess(0)
+					.addOperator(Preprocessing.getExampleFilter(filterCondition));
+		}
+		if (attributeSelection != null) {
+			if (!attributeSelection.isEmpty() && attributeSelection.contains(label)) {
+				process.getRootOperator().getSubprocess(0)
+						.addOperator(Preprocessing.getAttributeSelection(attributeSelection));
+			} else {
+				throw new RoisinException("Se est‡ filtrando sin incluir la clase");
+			}
+		}
+		return process;
 	}
 }
