@@ -22,10 +22,22 @@ import exception.RoisinRuleException;
  */
 public class RipperResults extends AbstractRoisinResults {
 
+	/**
+	 * Conjunto de datos de ejemplo.
+	 */
 	private ExampleSet exampleSet;
 
+	/**
+	 * Información sobre la clase.
+	 */
 	private Attribute label;
 
+	/**
+	 * Constructor público.
+	 * 
+	 * @param ruleModel
+	 * @param exampleSet
+	 */
 	public RipperResults(RuleModel ruleModel, ExampleSet exampleSet) {
 		this.rules = new ArrayList<RoisinRule>();
 		this.exampleSet = exampleSet;
@@ -41,14 +53,34 @@ public class RipperResults extends AbstractRoisinResults {
 		}
 	}
 
+	/**
+	 * Este método devuelve una cadena que contiene todas las condiciones de la
+	 * regla.
+	 * 
+	 * @param rule
+	 *            regla
+	 * @return
+	 */
 	private String getPremise(Rule rule) {
 		String premise = new String();
 		for (SplitCondition condition : rule.getTerms()) {
-			premise += condition;
+			if (rule.getTerms().indexOf(condition) < rule.getTerms().size() - 1) {
+				premise += condition + " & ";
+			} else {
+				premise += condition;
+			}
 		}
 		return premise;
 	}
 
+	/**
+	 * Este método devuelve el número total de aciertos de la regla que se pasa
+	 * como parámetro.
+	 * 
+	 * @param rule
+	 *            regla
+	 * @return aciertos número total de aciertos
+	 */
 	private int getAciertos(Rule rule) {
 		ExampleSet coveredExamples = rule.getCovered(this.exampleSet);
 		int aciertos = 0;
@@ -60,10 +92,24 @@ public class RipperResults extends AbstractRoisinResults {
 		return aciertos;
 	}
 
+	/**
+	 * Devuelve la precisión de la regla que se pasa como parámetro.
+	 * 
+	 * @param rule
+	 *            regla
+	 * @return
+	 */
 	private double getPrecision(Rule rule) {
 		return new Double(getAciertos(rule)) / new Double(rule.getCovered(this.exampleSet).size());
 	}
 
+	/**
+	 * Devuelve el soporte de la regla que se pasa como parámetro.
+	 * 
+	 * @param rule
+	 *            regla
+	 * @return soporte
+	 */
 	private double getSupport(Rule rule) {
 		int numEjemplosClase = 0;
 		for (Example example : this.exampleSet) {
@@ -74,6 +120,14 @@ public class RipperResults extends AbstractRoisinResults {
 		return new Double(getAciertos(rule)) / new Double(numEjemplosClase);
 	}
 
+	/**
+	 * Devuelve un array con cuatro enteros cuyos valores indican los tp, tn, fp
+	 * y fn de la regla que se pasa como parámetro.
+	 * 
+	 * @param rule
+	 *            regla
+	 * @return stats array de enteros
+	 */
 	private int[] getRuleStats(Rule rule) {
 		int[] stats = new int[4];
 		// Donde 0-tp, 1-tn, 2-fp, 3-fn
