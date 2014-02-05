@@ -1,11 +1,17 @@
 package com.roisin.core.results;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
 
+import org.jfree.util.Log;
+
+import com.rapidminer.example.Attribute;
+import com.rapidminer.example.Example;
+import com.rapidminer.example.ExampleSet;
 import com.rapidminer.operator.learner.rules.Rule;
 import com.rapidminer.operator.learner.rules.RuleModel;
+import com.rapidminer.operator.learner.tree.SplitCondition;
+
+import exception.RoisinRuleException;
 
 /**
  * Implementación de todos los métodos necesarios para la obtención de
@@ -14,86 +20,83 @@ import com.rapidminer.operator.learner.rules.RuleModel;
  * @author Félix Miguel Sanjuán Segovia <fmsanse@gmail.com>
  * 
  */
-public class RipperResults extends AbstractResults<Rule> {
+public class RipperResults extends AbstractResults {
 
-	/**
-	 * Rule model a partir del cual se hallarán los resultados.
-	 */
-	private RuleModel ruleModel;
+	private ExampleSet exampleSet;
 
-	/**
-	 * Constructor público.
-	 * 
-	 * @param ruleModel
-	 */
-	public RipperResults(RuleModel ruleModel) {
-		this.ruleModel = ruleModel;
-		this.numCasos = calculateNumCasos();
-		this.soportes = populateSupportMap();
-		this.precisiones = populateConfidenceMap();
-	}
+	private Attribute label;
 
-	/**
-	 * Calcula el número total de casos contenidos en los datos de ejemplo. El
-	 * cálculo se realiza a partir de la frecuencia.
-	 * 
-	 * @return numCasos número total de casos
-	 */
-	private int calculateNumCasos() {
-		int numCasos = 0;
+	public RipperResults(RuleModel ruleModel, ExampleSet exampleSet) {
+		this.rules = new ArrayList<RoisinRule>();
+		this.exampleSet = exampleSet;
+		this.label = ruleModel.getLabel();
+		// Populate rules.
 		for (Rule rule : ruleModel.getRules()) {
-			int[] ruleFrequencies = rule.getFrequencies();
-			numCasos += ruleFrequencies[0] + ruleFrequencies[1];
+			try {
+				rules.add(new RoisinRuleImpl(getPremise(rule), rule.getLabel(), getPrecision(rule),
+						getSupport(rule), getRuleStats(rule)));
+			} catch (RoisinRuleException e) {
+				Log.error("Imposible crear la regla");
+			}
 		}
-		return numCasos;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.roisin.core.utils.RipperResults#getNumCasos()
-	 */
-	@Override
-	public int getNumCasos() {
-		return this.numCasos;
-	}
-
-	/**
-	 * Devuelve un mapa que contiene las reglas asociadas a su precisión.
-	 * 
-	 * @return Map<Rule, Double> mapa
-	 */
-	private Map<Rule, Double> populateConfidenceMap() {
-		Map<Rule, Double> map = new HashMap<Rule, Double>();
-		for (Rule rule : ruleModel.getRules()) {
-			int labelIndex = getLabelNames().indexOf(rule.getLabel());
-			map.put(rule, rule.getConfidences()[labelIndex]);
+	private String getPremise(Rule rule) {
+		String premise = new String();
+		for (SplitCondition condition : rule.getTerms()) {
+			premise += condition;
 		}
-		return map;
+		return premise;
 	}
 
-	/**
-	 * Devuelve un mapa que contiene las reglas asociadas a su soporte.
-	 * 
-	 * @return Map<Rule, Double> mapa
-	 */
-	private Map<Rule, Double> populateSupportMap() {
-		Map<Rule, Double> map = new HashMap<Rule, Double>();
-		for (Rule rule : ruleModel.getRules()) {
-			int labelIndex = getLabelNames().indexOf(rule.getLabel());
-			map.put(rule, new Double(new Double(rule.getFrequencies()[labelIndex]) / getNumCasos()));
+	private int getAciertos(Rule rule) {
+		ExampleSet coveredExamples = rule.getCovered(this.exampleSet);
+		int aciertos = 0;
+		for (Example example : coveredExamples) {
+			if (example.getValueAsString(this.label).equals(rule.getLabel())) {
+				aciertos++;
+			}
 		}
-		return map;
+		return aciertos;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.roisin.core.utils.RipperResults#getLabelNames()
-	 */
-	@Override
-	public List<String> getLabelNames() {
-		return ruleModel.getLabel().getMapping().getValues();
+	private double getPrecision(Rule rule) {
+		return new Double(getAciertos(rule)) / new Double(rule.getCovered(this.exampleSet).size());
+	}
+
+	private double getSupport(Rule rule) {
+		int numEjemplosClase = 0;
+		for (Example example : this.exampleSet) {
+			if (example.getValueAsString(this.label).equals(rule.getLabel())) {
+				numEjemplosClase++;
+			}
+		}
+		return new Double(getAciertos(rule)) / new Double(numEjemplosClase);
+	}
+
+	private int[] getRuleStats(Rule rule) {
+		int[] stats = new int[4];
+		// Donde 0-tp, 1-tn, 2-fp, 3-fn
+
+		// Obtenemos el los ejemplos cubiertos por la regla
+		ExampleSet coveredExamples = rule.getCovered(this.exampleSet);
+		for (Example example : coveredExamples) {
+			if (example.getValueAsString(this.label).equals(rule.getLabel())) {
+				stats[0]++;
+			} else {
+				stats[2]++;
+			}
+		}
+		// Obtenemos el los ejemplos NO cubiertos por la regla
+		ExampleSet nonCoveredExamples = rule.removeCovered(this.exampleSet);
+		for (Example example : nonCoveredExamples) {
+			if (example.getValueAsString(this.label).equals(rule.getLabel())) {
+				stats[3]++;
+			} else {
+				stats[1]++;
+			}
+		}
+		return stats;
 	}
 
 }

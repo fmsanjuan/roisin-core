@@ -10,13 +10,12 @@
       <operator activated="true" class="retrieve" compatibility="5.3.015" expanded="true" height="60" name="Retrieve Golf" width="90" x="112" y="120">
         <parameter key="repository_entry" value="//Samples/data/Golf"/>
       </operator>
-      <operator activated="true" class="retrieve" compatibility="5.3.015" expanded="true" height="60" name="Retrieve Golf (2)" width="90" x="313" y="300">
-        <parameter key="repository_entry" value="//Samples/data/Golf"/>
+      <operator activated="true" class="rule_induction" compatibility="5.3.015" expanded="true" height="76" name="Rule Induction" width="90" x="313" y="120">
+        <parameter key="sample_ratio" value="1.0"/>
       </operator>
-      <operator activated="true" class="rule_induction" compatibility="5.3.015" expanded="true" height="76" name="Rule Induction" width="90" x="313" y="120"/>
       <connect from_op="Retrieve Golf" from_port="output" to_op="Rule Induction" to_port="training set"/>
-      <connect from_op="Retrieve Golf (2)" from_port="output" to_port="result 2"/>
       <connect from_op="Rule Induction" from_port="model" to_port="result 1"/>
+      <connect from_op="Rule Induction" from_port="exampleSet" to_port="result 2"/>
       <portSpacing port="source_input 1" spacing="0"/>
       <portSpacing port="sink_result 1" spacing="0"/>
       <portSpacing port="sink_result 2" spacing="0"/>
