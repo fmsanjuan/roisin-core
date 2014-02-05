@@ -4,7 +4,8 @@ import com.rapidminer.example.ExampleSet;
 
 public class Utils {
 
-	public static int getNumCasosTotalFromExampleSet(ExampleSet exampleSet) {
+	public static int getNumEjemplosTotalExampleSet(ExampleSet exampleSet) {
 		return exampleSet.getExampleTable().size();
 	}
+
 }

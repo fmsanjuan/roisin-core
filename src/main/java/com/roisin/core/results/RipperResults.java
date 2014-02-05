@@ -1,11 +1,17 @@
 package com.roisin.core.results;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
 
+import org.jfree.util.Log;
+
+import com.rapidminer.example.Attribute;
+import com.rapidminer.example.Example;
+import com.rapidminer.example.ExampleSet;
 import com.rapidminer.operator.learner.rules.Rule;
 import com.rapidminer.operator.learner.rules.RuleModel;
+import com.rapidminer.operator.learner.tree.SplitCondition;
+
+import exception.RoisinRuleException;
 
 /**
  * Implementación de todos los métodos necesarios para la obtención de
@@ -14,86 +20,137 @@ import com.rapidminer.operator.learner.rules.RuleModel;
  * @author Félix Miguel Sanjuán Segovia <fmsanse@gmail.com>
  * 
  */
-public class RipperResults extends AbstractResults<Rule> {
+public class RipperResults extends AbstractRoisinResults {
 
 	/**
-	 * Rule model a partir del cual se hallarán los resultados.
+	 * Conjunto de datos de ejemplo.
 	 */
-	private RuleModel ruleModel;
+	private ExampleSet exampleSet;
+
+	/**
+	 * Información sobre la clase.
+	 */
+	private Attribute label;
 
 	/**
 	 * Constructor público.
 	 * 
 	 * @param ruleModel
+	 * @param exampleSet
 	 */
-	public RipperResults(RuleModel ruleModel) {
-		this.ruleModel = ruleModel;
-		this.numCasos = calculateNumCasos();
-		this.soportes = populateSupportMap();
-		this.precisiones = populateConfidenceMap();
+	public RipperResults(RuleModel ruleModel, ExampleSet exampleSet) {
+		this.rules = new ArrayList<RoisinRule>();
+		this.exampleSet = exampleSet;
+		this.label = ruleModel.getLabel();
+		// Populate rules.
+		for (Rule rule : ruleModel.getRules()) {
+			try {
+				rules.add(new RoisinRuleImpl(getPremise(rule), rule.getLabel(), getPrecision(rule),
+						getSupport(rule), getRuleStats(rule)));
+			} catch (RoisinRuleException e) {
+				Log.error("Imposible crear la regla");
+			}
+		}
 	}
 
 	/**
-	 * Calcula el número total de casos contenidos en los datos de ejemplo. El
-	 * cálculo se realiza a partir de la frecuencia.
+	 * Este método devuelve una cadena que contiene todas las condiciones de la
+	 * regla.
 	 * 
-	 * @return numCasos número total de casos
+	 * @param rule
+	 *            regla
+	 * @return
 	 */
-	private int calculateNumCasos() {
-		int numCasos = 0;
-		for (Rule rule : ruleModel.getRules()) {
-			int[] ruleFrequencies = rule.getFrequencies();
-			numCasos += ruleFrequencies[0] + ruleFrequencies[1];
+	private String getPremise(Rule rule) {
+		String premise = new String();
+		for (SplitCondition condition : rule.getTerms()) {
+			if (rule.getTerms().indexOf(condition) < rule.getTerms().size() - 1) {
+				premise += condition + " & ";
+			} else {
+				premise += condition;
+			}
 		}
-		return numCasos;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.roisin.core.utils.RipperResults#getNumCasos()
-	 */
-	@Override
-	public int getNumCasos() {
-		return this.numCasos;
+		return premise;
 	}
 
 	/**
-	 * Devuelve un mapa que contiene las reglas asociadas a su precisión.
+	 * Este método devuelve el número total de aciertos de la regla que se pasa
+	 * como parámetro.
 	 * 
-	 * @return Map<Rule, Double> mapa
+	 * @param rule
+	 *            regla
+	 * @return aciertos número total de aciertos
 	 */
-	private Map<Rule, Double> populateConfidenceMap() {
-		Map<Rule, Double> map = new HashMap<Rule, Double>();
-		for (Rule rule : ruleModel.getRules()) {
-			int labelIndex = getLabelNames().indexOf(rule.getLabel());
-			map.put(rule, rule.getConfidences()[labelIndex]);
+	private int getAciertos(Rule rule) {
+		ExampleSet coveredExamples = rule.getCovered(this.exampleSet);
+		int aciertos = 0;
+		for (Example example : coveredExamples) {
+			if (example.getValueAsString(this.label).equals(rule.getLabel())) {
+				aciertos++;
+			}
 		}
-		return map;
+		return aciertos;
 	}
 
 	/**
-	 * Devuelve un mapa que contiene las reglas asociadas a su soporte.
+	 * Devuelve la precisión de la regla que se pasa como parámetro.
 	 * 
-	 * @return Map<Rule, Double> mapa
+	 * @param rule
+	 *            regla
+	 * @return
 	 */
-	private Map<Rule, Double> populateSupportMap() {
-		Map<Rule, Double> map = new HashMap<Rule, Double>();
-		for (Rule rule : ruleModel.getRules()) {
-			int labelIndex = getLabelNames().indexOf(rule.getLabel());
-			map.put(rule, new Double(new Double(rule.getFrequencies()[labelIndex]) / getNumCasos()));
-		}
-		return map;
+	private double getPrecision(Rule rule) {
+		return new Double(getAciertos(rule)) / new Double(rule.getCovered(this.exampleSet).size());
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Devuelve el soporte de la regla que se pasa como parámetro.
 	 * 
-	 * @see com.roisin.core.utils.RipperResults#getLabelNames()
+	 * @param rule
+	 *            regla
+	 * @return soporte
 	 */
-	@Override
-	public List<String> getLabelNames() {
-		return ruleModel.getLabel().getMapping().getValues();
+	private double getSupport(Rule rule) {
+		int numEjemplosClase = 0;
+		for (Example example : this.exampleSet) {
+			if (example.getValueAsString(this.label).equals(rule.getLabel())) {
+				numEjemplosClase++;
+			}
+		}
+		return new Double(getAciertos(rule)) / new Double(numEjemplosClase);
+	}
+
+	/**
+	 * Devuelve un array con cuatro enteros cuyos valores indican los tp, tn, fp
+	 * y fn de la regla que se pasa como parámetro.
+	 * 
+	 * @param rule
+	 *            regla
+	 * @return stats array de enteros
+	 */
+	private int[] getRuleStats(Rule rule) {
+		int[] stats = new int[4];
+		// Donde 0-tp, 1-tn, 2-fp, 3-fn
+
+		// Obtenemos el los ejemplos cubiertos por la regla
+		ExampleSet coveredExamples = rule.getCovered(this.exampleSet);
+		for (Example example : coveredExamples) {
+			if (example.getValueAsString(this.label).equals(rule.getLabel())) {
+				stats[0]++;
+			} else {
+				stats[2]++;
+			}
+		}
+		// Obtenemos el los ejemplos NO cubiertos por la regla
+		ExampleSet nonCoveredExamples = rule.removeCovered(this.exampleSet);
+		for (Example example : nonCoveredExamples) {
+			if (example.getValueAsString(this.label).equals(rule.getLabel())) {
+				stats[3]++;
+			} else {
+				stats[1]++;
+			}
+		}
+		return stats;
 	}
 
 }

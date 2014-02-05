@@ -1,80 +1,131 @@
 package com.roisin.core.results;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
 
+import org.jfree.util.Log;
+
+import com.rapidminer.example.Example;
+import com.rapidminer.example.ExampleSet;
 import com.rapidminer.operator.learner.subgroups.RuleSet;
 import com.rapidminer.operator.learner.subgroups.hypothesis.Rule;
 import com.rapidminer.operator.learner.subgroups.utility.UtilityFunction;
+
+import exception.RoisinRuleException;
 
 /**
  * Implementación de todos los métodos necesarios para la obtención de
  * resultados a partir del algoritmo subgroup discovery.
  * 
  * @author Félix Miguel Sanjuán Segovia <fmsanse@gmail.com>
- * @param <T>
  * 
  */
-public class SubgroupResults extends AbstractResults<Rule> {
-
-	/**
-	 * Rule set que contiene el conjunto de reglas calculadas por un proceso.
-	 */
-	private RuleSet ruleSet;
+public class SubgroupResults extends AbstractRoisinResults {
 
 	/**
 	 * Constructor público.
 	 * 
 	 * @param ruleSet
-	 * @param numCasos
+	 * @param exampleSet
 	 */
-	public SubgroupResults(RuleSet ruleSet, int numCasos) {
-		this.ruleSet = ruleSet;
-		this.numCasos = numCasos;
-		this.precisiones = populateConfidenceMap();
-		this.soportes = populateSupportMap();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.roisin.core.utils.Results#getLabelNames()
-	 */
-	@Override
-	public List<String> getLabelNames() {
-		return ruleSet.getLabel().getMapping().getValues();
-	}
-
-	/**
-	 * Devuelve un mapa que contiene las reglas asociadas a su precisión.
-	 * 
-	 * @return Map<Rule, Double> mapa
-	 */
-	private Map<Rule, Double> populateConfidenceMap() {
-		Map<Rule, Double> map = new HashMap<Rule, Double>();
+	public SubgroupResults(RuleSet ruleSet, ExampleSet exampleSet) {
+		this.rules = new ArrayList<RoisinRule>();
 		for (int i = 0; i < ruleSet.getNumberOfRules(); i++) {
-			map.put(ruleSet.getRule(i),
-					(Double) ruleSet.getRule(i).getUtility(
-							UtilityFunction.getUtilityFunctionClass(UtilityFunction.PRECISION)));
+			Rule rule = ruleSet.getRule(i);
+			try {
+				rules.add(new RoisinRuleImpl(getPremise(rule), getLabel(rule), getPrecision(rule),
+						getSupport(rule, exampleSet), getRuleStats(rule, exampleSet)));
+			} catch (RoisinRuleException e) {
+				Log.error("Imposible crear la regla");
+			}
 		}
-		return map;
 	}
 
 	/**
-	 * Devuelve un mapa que contiene las reglas asociadas a su soporte.
+	 * Este método devuelve el número total de aciertos de la regla que se pasa
+	 * como parámetro.
 	 * 
-	 * @return Map<Rule, Double> mapa
+	 * @param rule
+	 *            regla
+	 * @return aciertos número total de aciertos
 	 */
-	private Map<Rule, Double> populateSupportMap() {
-		Map<Rule, Double> map = new HashMap<Rule, Double>();
-		for (Rule rule : ruleSet.getPositiveRules()) {
-			map.put(rule, new Double(rule.getPositiveWeight() / getNumCasos()));
+	private int getAciertos(Rule rule) {
+		// Si la conclusión es positiva, devuelve la frecuencia positiva. En
+		// casos contrario, devuelve la negativa.
+		return rule.getConclusion().getValue() > 0 ? (int) rule.getPositiveWeight() : (int) rule
+				.getNegativeWeight();
+	}
+
+	/**
+	 * Devuelve el antecedente de la regla que se pasa como parámetro.
+	 * 
+	 * @param rule
+	 *            regla
+	 * @return
+	 */
+	private String getPremise(Rule rule) {
+		return rule.getPremise().toString();
+	}
+
+	/**
+	 * Devuelve la clase de la regla que se pasa como parámetro.
+	 * 
+	 * @param rule
+	 *            regla
+	 * @return
+	 */
+	private String getLabel(Rule rule) {
+		return rule.getConclusion().getValueAsString();
+	}
+
+	/**
+	 * Devuelve la precisión de la regla que se pasa como parámetro.
+	 * 
+	 * @param rule
+	 *            regla
+	 * @return
+	 */
+	private double getPrecision(Rule rule) {
+		return rule.getUtility(UtilityFunction.getUtilityFunctionClass(UtilityFunction.PRECISION));
+	}
+
+	/**
+	 * Devuelve el soporte de la regla que se pasa como parámetro.
+	 * 
+	 * @param rule
+	 *            regla
+	 * @return soporte
+	 */
+	private double getSupport(Rule rule, ExampleSet exampleSet) {
+		int aciertos = getAciertos(rule);
+		int numEjemplosClase = 0;
+		for (Example example : exampleSet) {
+			if (example.getLabel() == rule.getConclusion().getValue()) {
+				numEjemplosClase++;
+			}
 		}
-		for (Rule rule : ruleSet.getNegativeRules()) {
-			map.put(rule, new Double(rule.getNegativeWeight() / getNumCasos()));
+		return new Double(aciertos) / new Double(numEjemplosClase);
+	}
+
+	private int[] getRuleStats(Rule rule, ExampleSet exampleSet) {
+		// Donde 0-tp, 1-tn, 2-fp, 3-fn
+		int[] stats = new int[4];
+		// True positives
+		stats[0] = getAciertos(rule);
+		// False positives
+		stats[2] = rule.getConclusion().getValue() > 0 ? (int) rule.getNegativeWeight()
+				: (int) rule.getPositiveWeight();
+		for (Example example : exampleSet) {
+			if (!rule.getPremise().applicable(example)) {
+				if (example.getLabel() != rule.getConclusion().getValue()) {
+					// True negatives
+					stats[1]++;
+				} else {
+					// False negatives
+					stats[3]++;
+				}
+			}
 		}
-		return map;
+		return stats;
 	}
 
 }
