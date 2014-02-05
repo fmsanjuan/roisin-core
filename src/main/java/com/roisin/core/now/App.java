@@ -10,9 +10,12 @@ import com.rapidminer.example.ExampleSet;
 import com.rapidminer.operator.IOContainer;
 import com.rapidminer.operator.OperatorException;
 import com.rapidminer.operator.learner.rules.RuleModel;
+import com.rapidminer.operator.learner.subgroups.RuleSet;
 import com.roisin.core.processes.SampleProcesses;
-import com.roisin.core.results.RoisinResults;
 import com.roisin.core.results.RipperResults;
+import com.roisin.core.results.RoisinResults;
+import com.roisin.core.results.SubgroupResults;
+import com.roisin.core.utils.Constants;
 
 public class App {
 
@@ -36,12 +39,21 @@ public class App {
 		IOContainer container;
 		try {
 			container = process.run();
-			RuleModel ruleModel = (RuleModel) container.asList().get(0);
-			ExampleSet exampleSet = (ExampleSet) container.asList().get(1);
+			RuleModel ruleModel1 = (RuleModel) container.asList().get(0);
+			ExampleSet exampleSet1 = (ExampleSet) container.asList().get(1);
 
-			RoisinResults results = new RipperResults(ruleModel, exampleSet);
+			RoisinResults results = new RipperResults(ruleModel1, exampleSet1);
 
 			System.out.println(results);
+
+			Process process1 = SampleProcesses.getSubgroupDiscretization();
+			IOContainer container2 = process1.run();
+			RuleSet ruleSet2 = (RuleSet) container2.asList().get(Constants.PROCESS_OUTPUT_INDEX);
+			ExampleSet exampleSet2 = (ExampleSet) container2.asList().get(
+					Constants.EXAMPLE_OUTPUT_INDEX);
+			RoisinResults results2 = new SubgroupResults(ruleSet2, exampleSet2);
+
+			System.out.println(results2);
 
 		} catch (OperatorException e) {
 			// TODO Auto-generated catch block

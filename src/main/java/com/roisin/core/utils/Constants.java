@@ -16,4 +16,8 @@ public class Constants {
 
 	public static String PORT_ORIGINAL = "original";
 
+	public static int PROCESS_OUTPUT_INDEX = 0;
+
+	public static int EXAMPLE_OUTPUT_INDEX = 1;
+
 }
