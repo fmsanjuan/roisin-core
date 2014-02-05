@@ -20,7 +20,7 @@ import exception.RoisinRuleException;
  * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
  * 
  */
-public class RipperResults extends AbstractResults {
+public class RipperResults extends AbstractRoisinResults {
 
 	private ExampleSet exampleSet;
 

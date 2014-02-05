@@ -9,7 +9,7 @@ package com.roisin.core.results;
  * @param <T>
  * 
  */
-public class SubgroupResults extends AbstractResults {
+public class SubgroupResults extends AbstractRoisinResults {
 
 	// /**
 	// * Rule set que contiene el conjunto de reglas calculadas por un proceso.

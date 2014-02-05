@@ -182,4 +182,19 @@ public class RoisinRuleImpl implements RoisinRule {
 		return fn;
 	}
 
+	public String toString() {
+		String res = new String();
+		res += "Antecedente: " + getPremise();
+		res += "\nClase: " + getConclusion();
+		res += "\nPrecisi—n: " + getPrecision();
+		res += "\nSoporte: " + getSupport();
+		res += "\nTrue Positives: " + getTruePositives();
+		res += "\nTrue Negatives: " + getTrueNegatives();
+		res += "\nFalse Positives: " + getFalsePositives();
+		res += "\nFalse Negatives: " + getFalseNegatives();
+		res += "\nTPR: " + getTruePositiveRate();
+		res += "\nFPR: " + getFalsePositiveRate();
+		return res;
+	}
+
 }

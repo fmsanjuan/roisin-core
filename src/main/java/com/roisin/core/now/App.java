@@ -11,6 +11,8 @@ import com.rapidminer.operator.IOContainer;
 import com.rapidminer.operator.OperatorException;
 import com.rapidminer.operator.learner.rules.RuleModel;
 import com.roisin.core.processes.SampleProcesses;
+import com.roisin.core.results.RoisinResults;
+import com.roisin.core.results.RipperResults;
 
 public class App {
 
@@ -37,7 +39,9 @@ public class App {
 			RuleModel ruleModel = (RuleModel) container.asList().get(0);
 			ExampleSet exampleSet = (ExampleSet) container.asList().get(1);
 
-			ruleModel.getRules().get(0).getCovered(exampleSet).size();
+			RoisinResults results = new RipperResults(ruleModel, exampleSet);
+
+			System.out.println(results);
 
 		} catch (OperatorException e) {
 			// TODO Auto-generated catch block
