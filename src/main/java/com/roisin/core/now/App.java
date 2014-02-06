@@ -1,5 +1,7 @@
 package com.roisin.core.now;
 
+import java.util.LinkedList;
+
 import org.apache.log4j.Logger;
 import org.jfree.util.Log;
 
@@ -11,7 +13,7 @@ import com.rapidminer.operator.IOContainer;
 import com.rapidminer.operator.OperatorException;
 import com.rapidminer.operator.learner.rules.RuleModel;
 import com.rapidminer.operator.learner.subgroups.RuleSet;
-import com.roisin.core.processes.SampleProcesses;
+import com.roisin.core.processes.GenericProcesses;
 import com.roisin.core.results.RipperResults;
 import com.roisin.core.results.RoisinResults;
 import com.roisin.core.results.SubgroupResults;
@@ -35,25 +37,44 @@ public class App {
 		}
 		Log.info("Rapidminer iniciado");
 
-		Process process = SampleProcesses.getRipper();
-		IOContainer container;
 		try {
-			container = process.run();
-			RuleModel ruleModel1 = (RuleModel) container.asList().get(0);
-			ExampleSet exampleSet1 = (ExampleSet) container.asList().get(1);
+			LinkedList<String> atributos = new LinkedList<String>();
+			atributos.add("Outlook");
+			atributos.add("Temperature");
+			atributos.add("Humidity");
+			atributos.add("Play");
 
-			RoisinResults results = new RipperResults(ruleModel1, exampleSet1);
+			String path = "/Users/felix/03.TFG/DatosDeEjemplo/exportando/prueba-excel-csv.csv";
+			String label = "Play";
+			String condition = "Outlook!=overcast";
 
-			System.out.println(results);
+			Process process1 = GenericProcesses.getRipper(Constants.CSV_FORMAT, path, label,
+					condition, atributos);
 
-			Process process1 = SampleProcesses.getSubgroupDiscretization();
-			IOContainer container2 = process1.run();
+			Process process2 = GenericProcesses.getSubgroupDiscoveryDiscretization(
+					Constants.CSV_FORMAT, path, label, condition, atributos);
+
+			Process process3 = GenericProcesses.getDecisionTreeToRules(Constants.CSV_FORMAT, path,
+					label, condition, atributos);
+
+			IOContainer container1 = process1.run();
+			RuleModel ruleModel1 = (RuleModel) container1.asList().get(0);
+			ExampleSet exampleSet1 = (ExampleSet) container1.asList().get(1);
+			RoisinResults results1 = new RipperResults(ruleModel1, exampleSet1);
+			System.out.println(results1);
+
+			IOContainer container2 = process2.run();
 			RuleSet ruleSet2 = (RuleSet) container2.asList().get(Constants.PROCESS_OUTPUT_INDEX);
 			ExampleSet exampleSet2 = (ExampleSet) container2.asList().get(
 					Constants.EXAMPLE_OUTPUT_INDEX);
 			RoisinResults results2 = new SubgroupResults(ruleSet2, exampleSet2);
-
 			System.out.println(results2);
+
+			IOContainer container3 = process3.run();
+			RuleModel ruleModel3 = (RuleModel) container3.asList().get(0);
+			ExampleSet exampleSet3 = (ExampleSet) container3.asList().get(1);
+			RoisinResults results3 = new RipperResults(ruleModel3, exampleSet3);
+			System.out.println(results3);
 
 		} catch (OperatorException e) {
 			// TODO Auto-generated catch block
