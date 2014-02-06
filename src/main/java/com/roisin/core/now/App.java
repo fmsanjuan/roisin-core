@@ -1,6 +1,8 @@
 package com.roisin.core.now;
 
 import java.util.LinkedList;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.jfree.util.Log;
@@ -8,6 +10,7 @@ import org.jfree.util.Log;
 import com.rapidminer.Process;
 import com.rapidminer.RapidMiner;
 import com.rapidminer.RapidMiner.ExecutionMode;
+import com.rapidminer.example.Example;
 import com.rapidminer.example.ExampleSet;
 import com.rapidminer.operator.IOContainer;
 import com.rapidminer.operator.OperatorException;
@@ -44,18 +47,28 @@ public class App {
 			atributos.add("Humidity");
 			atributos.add("Play");
 
+			SortedSet<Integer> deletedRows = new TreeSet<Integer>();
+			deletedRows.add(2);
+			deletedRows.add(5);
+			deletedRows.add(6);
+			deletedRows.add(7);
+			deletedRows.add(9);
+			deletedRows.add(10);
+			deletedRows.add(13);
+
 			String path = "/Users/felix/03.TFG/DatosDeEjemplo/exportando/prueba-excel-csv.csv";
 			String label = "Play";
-			String condition = "Outlook!=overcast";
+			// String condition = "Outlook!=overcast";
+			String condition = null;
 
 			Process process1 = GenericProcesses.getRipper(Constants.CSV_FORMAT, path, label,
-					condition, atributos);
+					deletedRows, condition, atributos);
 
 			Process process2 = GenericProcesses.getSubgroupDiscoveryDiscretization(
-					Constants.CSV_FORMAT, path, label, condition, atributos);
+					Constants.CSV_FORMAT, path, label, deletedRows, condition, atributos);
 
 			Process process3 = GenericProcesses.getDecisionTreeToRules(Constants.CSV_FORMAT, path,
-					label, condition, atributos);
+					label, deletedRows, condition, atributos);
 
 			IOContainer container1 = process1.run();
 			RuleModel ruleModel1 = (RuleModel) container1.asList().get(0);
@@ -75,6 +88,10 @@ public class App {
 			ExampleSet exampleSet3 = (ExampleSet) container3.asList().get(1);
 			RoisinResults results3 = new RipperResults(ruleModel3, exampleSet3);
 			System.out.println(results3);
+
+			for (Example example : exampleSet1) {
+				System.out.println(example);
+			}
 
 		} catch (OperatorException e) {
 			// TODO Auto-generated catch block

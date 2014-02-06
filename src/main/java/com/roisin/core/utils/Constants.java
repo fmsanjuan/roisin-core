@@ -24,4 +24,6 @@ public class Constants {
 
 	public static int EXAMPLE_OUTPUT_INDEX = 1;
 
+	public static String TRUE = "true";
+
 }

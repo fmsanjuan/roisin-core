@@ -1,6 +1,7 @@
 package com.roisin.core.processes;
 
 import java.util.List;
+import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
@@ -36,6 +37,8 @@ public class GenericProcesses {
 	 *            lugar donde se encuentra el conjunto de datos
 	 * @param label
 	 *            clase
+	 * @param deletedRows
+	 *            filas que ser‡n borradas
 	 * @param filterCondition
 	 *            condici—n para el filtrado por filas
 	 * @param attributeSelection
@@ -43,11 +46,11 @@ public class GenericProcesses {
 	 * @return process proceso
 	 */
 	public static Process getRipper(String sourceFormat, String sourcePath, String label,
-			String filterCondition, List<String> attributeSelection) {
+			SortedSet<Integer> deletedRows, String filterCondition, List<String> attributeSelection) {
 		Process process = null;
 		try {
-			process = Preprocessing.getPreprocessedData(sourceFormat, sourcePath, filterCondition,
-					attributeSelection, label);
+			process = Preprocessing.getPreprocessedData(sourceFormat, sourcePath, deletedRows,
+					filterCondition, attributeSelection, label);
 			/* Setting roles */
 			ChangeAttributeRole setRoleOperator = OperatorService
 					.createOperator(ChangeAttributeRole.class);
@@ -89,6 +92,8 @@ public class GenericProcesses {
 	 *            lugar donde se encuentra el conjunto de datos
 	 * @param label
 	 *            clase
+	 * @param deletedRows
+	 *            filas que ser‡n borradas
 	 * @param filterCondition
 	 *            condici—n para el filtrado por filas
 	 * @param attributeSelection
@@ -96,11 +101,12 @@ public class GenericProcesses {
 	 * @return process proceso
 	 */
 	public static Process getSubgroupDiscoveryDiscretization(String sourceFormat,
-			String sourcePath, String label, String filterCondition, List<String> attributeSelection) {
+			String sourcePath, String label, SortedSet<Integer> deletedRows,
+			String filterCondition, List<String> attributeSelection) {
 		Process process = null;
 		try {
-			process = Preprocessing.getPreprocessedData(sourceFormat, sourcePath, filterCondition,
-					attributeSelection, label);
+			process = Preprocessing.getPreprocessedData(sourceFormat, sourcePath, deletedRows,
+					filterCondition, attributeSelection, label);
 			/* Setting roles */
 			ChangeAttributeRole setRoleOperator = OperatorService
 					.createOperator(ChangeAttributeRole.class);
@@ -148,6 +154,8 @@ public class GenericProcesses {
 	 *            lugar donde se encuentra el conjunto de datos
 	 * @param label
 	 *            clase
+	 * @param deletedRows
+	 *            filas que ser‡n borradas
 	 * @param filterCondition
 	 *            condici—n para el filtrado por filas
 	 * @param attributeSelection
@@ -155,11 +163,12 @@ public class GenericProcesses {
 	 * @return process proceso
 	 */
 	public static Process getDecisionTreeToRules(String sourceFormat, String sourcePath,
-			String label, String filterCondition, List<String> attributeSelection) {
+			String label, SortedSet<Integer> deletedRows, String filterCondition,
+			List<String> attributeSelection) {
 		Process process = null;
 		try {
-			process = Preprocessing.getPreprocessedData(sourceFormat, sourcePath, filterCondition,
-					attributeSelection, label);
+			process = Preprocessing.getPreprocessedData(sourceFormat, sourcePath, deletedRows,
+					filterCondition, attributeSelection, label);
 			/* Setting roles */
 			ChangeAttributeRole setRoleOperator = OperatorService
 					.createOperator(ChangeAttributeRole.class);
