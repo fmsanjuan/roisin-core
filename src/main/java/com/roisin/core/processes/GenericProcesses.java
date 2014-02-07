@@ -59,6 +59,7 @@ public class GenericProcesses {
 					.setParameter(ChangeAttributeRole.PARAMETER_TARGET_ROLE, Constants.LABEL);
 			/* Rule Induction */
 			RuleLearner ruleInductionOperator = OperatorService.createOperator(RuleLearner.class);
+			ruleInductionOperator.setParameter(Constants.RIPPER_SAMPLE_RATIO, "1.0");
 			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
 			process.getRootOperator().getSubprocess(0).addOperator(ruleInductionOperator);
 			// Es obligatorio devolver el conjunto de datos de ejemplo como un
@@ -68,7 +69,7 @@ public class GenericProcesses {
 					.getPortByName(Constants.PORT_EXAMPLE_SET)
 					.connectTo(
 							process.getRootOperator().getSubprocess(0).getInnerSinks()
-									.getPortByName("result 2"));
+									.getPortByName(Constants.PORT_RESULT_2));
 			// Auto wire connects the last operator to result 1 automatically.
 			process.getRootOperator().getSubprocess(0)
 					.autoWire(CompatibilityLevel.VERSION_5, true, true);
@@ -130,7 +131,7 @@ public class GenericProcesses {
 					.getPortByName(Constants.PORT_EXAMPLE_SET)
 					.connectTo(
 							process.getRootOperator().getSubprocess(0).getInnerSinks()
-									.getPortByName("result 2"));
+									.getPortByName(Constants.PORT_RESULT_2));
 			// Auto wire connects the last operator to result 1 automatically.
 			process.getRootOperator().getSubprocess(0)
 					.autoWire(CompatibilityLevel.VERSION_5, true, true);
@@ -191,7 +192,7 @@ public class GenericProcesses {
 					.getPortByName(Constants.PORT_EXAMPLE_SET_TREE2R)
 					.connectTo(
 							process.getRootOperator().getSubprocess(0).getInnerSinks()
-									.getPortByName("result 2"));
+									.getPortByName(Constants.PORT_RESULT_2));
 			// Auto wire connects the last operator to result 1 automatically.
 			process.getRootOperator().getSubprocess(0)
 					.autoWire(CompatibilityLevel.VERSION_5, true, true);

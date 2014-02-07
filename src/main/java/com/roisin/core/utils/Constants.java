@@ -20,6 +20,10 @@ public class Constants {
 
 	public static String PORT_EXAMPLE_SET_TREE2R = "example set";
 
+	public static String PORT_RESULT_2 = "result 2";
+
+	public static String RIPPER_SAMPLE_RATIO = "sample_ratio";
+
 	public static int PROCESS_OUTPUT_INDEX = 0;
 
 	public static int EXAMPLE_OUTPUT_INDEX = 1;
