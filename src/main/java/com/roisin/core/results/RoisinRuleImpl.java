@@ -6,6 +6,12 @@ import com.rapidminer.example.Example;
 
 import exception.RoisinRuleException;
 
+/**
+ * Implementaci—n del tipo de dato RoisinRule.
+ * 
+ * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * 
+ */
 public class RoisinRuleImpl implements RoisinRule {
 
 	/**

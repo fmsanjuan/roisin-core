@@ -15,8 +15,18 @@ import com.rapidminer.operator.nio.ExcelExampleSource;
 import com.rapidminer.operator.ports.metadata.CompatibilityLevel;
 import com.rapidminer.tools.OperatorService;
 
+/**
+ * Implementación de métodos para la conversión de ficheros que contienen datos
+ * de ejemplo que serán procesados en Roisin.
+ * 
+ * @author Félix Miguel Sanjuán Segovia <fmsanse@gmail.com>
+ * 
+ */
 public class DataTransformation {
 
+	/**
+	 * Log
+	 */
 	public static Logger log = Logger.getLogger(DataTransformation.class);
 
 	/**

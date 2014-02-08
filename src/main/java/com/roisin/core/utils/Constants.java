@@ -1,5 +1,11 @@
 package com.roisin.core.utils;
 
+/**
+ * Constantes necesarias para el desarrollo de Roisin.
+ * 
+ * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * 
+ */
 public class Constants {
 
 	public static String EXCEL_FORMAT = "xls";

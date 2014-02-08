@@ -19,6 +19,13 @@ import com.roisin.core.utils.Constants;
 
 import exception.RoisinException;
 
+/**
+ * Implementación de los métodos necesarios para obtener los procesos Ripper,
+ * Tree2Rules y Subgroup Discovery.
+ * 
+ * @author Félix Miguel Sanjuán Segovia <fmsanse@gmail.com>
+ * 
+ */
 public class GenericProcesses {
 
 	/**

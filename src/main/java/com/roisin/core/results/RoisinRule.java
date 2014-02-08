@@ -4,6 +4,13 @@ import java.util.List;
 
 import com.rapidminer.example.Example;
 
+/**
+ * Interfaz para el tipo de dato RoisinRule, que se encargar‡ de recoger
+ * aquellos datos necesarios para la aplicaci—n.
+ * 
+ * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * 
+ */
 public interface RoisinRule {
 
 	/**

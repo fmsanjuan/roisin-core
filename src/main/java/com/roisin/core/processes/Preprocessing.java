@@ -22,6 +22,13 @@ import com.roisin.core.utils.Constants;
 
 import exception.RoisinException;
 
+/**
+ * Clase que contiene los métodos necesarios para llevar a cabo las tareas de
+ * preprocesamiento de datos.
+ * 
+ * @author Félix Miguel Sanjuán Segovia <fmsanse@gmail.com>
+ * 
+ */
 public class Preprocessing {
 
 	/**

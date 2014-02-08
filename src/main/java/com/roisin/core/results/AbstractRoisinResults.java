@@ -7,6 +7,13 @@ import java.util.Set;
 
 import com.rapidminer.example.Example;
 
+/**
+ * Clase abstracta con la implementaci—n comœn a la obtenci—n de resultados para
+ * Roisin.
+ * 
+ * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * 
+ */
 public abstract class AbstractRoisinResults implements RoisinResults {
 
 	/**
