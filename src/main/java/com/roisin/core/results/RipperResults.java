@@ -1,6 +1,8 @@
 package com.roisin.core.results;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import org.jfree.util.Log;
 
@@ -39,14 +41,15 @@ public class RipperResults extends AbstractRoisinResults {
 	 * @param exampleSet
 	 */
 	public RipperResults(RuleModel ruleModel, ExampleSet exampleSet) {
-		this.rules = new ArrayList<RoisinRule>();
+		super();
 		this.exampleSet = exampleSet;
 		this.label = ruleModel.getLabel();
+		this.alreadyCoveredExamples = new HashSet<Example>();
 		// Populate rules.
 		for (Rule rule : ruleModel.getRules()) {
 			try {
 				rules.add(new RoisinRuleImpl(getPremise(rule), rule.getLabel(), getPrecision(rule),
-						getSupport(rule), getRuleStats(rule)));
+						getSupport(rule), getRuleStats(rule), getCoveredExamples(rule)));
 			} catch (RoisinRuleException e) {
 				Log.error("Imposible crear la regla");
 			}
@@ -151,6 +154,27 @@ public class RipperResults extends AbstractRoisinResults {
 			}
 		}
 		return stats;
+	}
+
+	/**
+	 * Devuelve una lista que contiene todos los ejemplos cubiertos por la
+	 * regla. Para la creaci—n de esta lista se tiene en cuenta si el ejemplo ya
+	 * ha sido cubierto por otra regla. En tal caso, no se a–ade (solapamiento).
+	 * 
+	 * @param rule
+	 *            regla
+	 * @return coveredExamples lista de ejemplos cubiertos por la regla
+	 */
+	private List<Example> getCoveredExamples(Rule rule) {
+		List<Example> coveredExamples = new ArrayList<Example>();
+		for (Example example : rule.getCovered(this.exampleSet)) {
+			// Si el ejemplo no est‡ contenido en otra regla
+			if (!hasBeenCovered(example)) {
+				coveredExamples.add(example);
+			}
+		}
+		this.alreadyCoveredExamples.addAll(coveredExamples);
+		return coveredExamples;
 	}
 
 }

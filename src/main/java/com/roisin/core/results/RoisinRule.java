@@ -1,5 +1,9 @@
 package com.roisin.core.results;
 
+import java.util.List;
+
+import com.rapidminer.example.Example;
+
 public interface RoisinRule {
 
 	/**
@@ -71,4 +75,11 @@ public interface RoisinRule {
 	 * @return fn nœmero total de falsos negativos
 	 */
 	int getFalseNegatives();
+
+	/**
+	 * Devuelve una lista con todos los ejemplos cubiertos por la regla.
+	 * 
+	 * @return coveredExamples lista de ejemplos
+	 */
+	List<Example> getCoveredExamples();
 }

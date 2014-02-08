@@ -1,6 +1,7 @@
 package com.roisin.core.results;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.jfree.util.Log;
 
@@ -28,12 +29,13 @@ public class SubgroupResults extends AbstractRoisinResults {
 	 * @param exampleSet
 	 */
 	public SubgroupResults(RuleSet ruleSet, ExampleSet exampleSet) {
-		this.rules = new ArrayList<RoisinRule>();
+		super();
 		for (int i = 0; i < ruleSet.getNumberOfRules(); i++) {
 			Rule rule = ruleSet.getRule(i);
 			try {
 				rules.add(new RoisinRuleImpl(getPremise(rule), getLabel(rule), getPrecision(rule),
-						getSupport(rule, exampleSet), getRuleStats(rule, exampleSet)));
+						getSupport(rule, exampleSet), getRuleStats(rule, exampleSet),
+						getCoveredExamples(rule, exampleSet)));
 			} catch (RoisinRuleException e) {
 				Log.error("Imposible crear la regla");
 			}
@@ -106,6 +108,16 @@ public class SubgroupResults extends AbstractRoisinResults {
 		return new Double(aciertos) / new Double(numEjemplosClase);
 	}
 
+	/**
+	 * Devuelve un array con cuatro enteros cuyos valores indican los tp, tn, fp
+	 * y fn de la regla que se pasa como par‡metro.
+	 * 
+	 * @param rule
+	 *            regla
+	 * @param exampleSet
+	 *            conjunto de datos de ejemplo
+	 * @return stats array de enteros
+	 */
 	private int[] getRuleStats(Rule rule, ExampleSet exampleSet) {
 		// Donde 0-tp, 1-tn, 2-fp, 3-fn
 		int[] stats = new int[4];
@@ -126,6 +138,28 @@ public class SubgroupResults extends AbstractRoisinResults {
 			}
 		}
 		return stats;
+	}
+
+	/**
+	 * Devuelve una lista que contiene todos los ejemplos cubiertos por la
+	 * regla. Para la creaci—n de esta lista se tiene en cuenta si el ejemplo ya
+	 * ha sido cubierto por otra regla. En tal caso, no se a–ade (solapamiento).
+	 * 
+	 * @param rule
+	 *            regla
+	 * @param exampleSet
+	 *            conjunto de datos de ejemplo
+	 * @return coveredExamples lista de ejemplos cubiertos por la regla
+	 */
+	private List<Example> getCoveredExamples(Rule rule, ExampleSet exampleSet) {
+		List<Example> coveredExamples = new ArrayList<Example>();
+		for (Example example : exampleSet) {
+			if (!hasBeenCovered(example) && rule.applicable(example)) {
+				coveredExamples.add(example);
+			}
+		}
+		this.alreadyCoveredExamples.addAll(coveredExamples);
+		return coveredExamples;
 	}
 
 }

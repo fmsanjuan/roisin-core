@@ -1,5 +1,9 @@
 package com.roisin.core.results;
 
+import java.util.List;
+
+import com.rapidminer.example.Example;
+
 import exception.RoisinRuleException;
 
 public class RoisinRuleImpl implements RoisinRule {
@@ -55,6 +59,11 @@ public class RoisinRuleImpl implements RoisinRule {
 	private int fn;
 
 	/**
+	 * Examples that are covered by the rule.
+	 */
+	private List<Example> coveredExamples;
+
+	/**
 	 * Constructor pœblico.
 	 * 
 	 * @param premise
@@ -65,7 +74,7 @@ public class RoisinRuleImpl implements RoisinRule {
 	 * @throws RoisinRuleException
 	 */
 	public RoisinRuleImpl(String premise, String conclusion, double precision, double support,
-			int[] stats) throws RoisinRuleException {
+			int[] stats, List<Example> coveredExamples) throws RoisinRuleException {
 		super();
 		if (!(premise != null && conclusion != null)) {
 			throw new RoisinRuleException("Error en la creaci—n de reglas");
@@ -80,6 +89,7 @@ public class RoisinRuleImpl implements RoisinRule {
 		this.fn = stats[3];
 		this.tpr = new Double(tp) / new Double(tp + fn);
 		this.fpr = new Double(fp) / new Double(tn + fp);
+		this.coveredExamples = coveredExamples;
 	}
 
 	/*
@@ -182,6 +192,16 @@ public class RoisinRuleImpl implements RoisinRule {
 		return fn;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.roisin.core.results.RoisinRule#getCoveredExamples()
+	 */
+	@Override
+	public List<Example> getCoveredExamples() {
+		return coveredExamples;
+	}
+
 	public String toString() {
 		String res = new String();
 		res += "Antecedente: " + getPremise();
@@ -194,6 +214,11 @@ public class RoisinRuleImpl implements RoisinRule {
 		res += "\nFalse Negatives: " + getFalseNegatives();
 		res += "\nTPR: " + getTruePositiveRate();
 		res += "\nFPR: " + getFalsePositiveRate();
+		res += "\nEjemplos que cumplen la regla: ";
+		for (Example example : getCoveredExamples()) {
+			res += "\nEjemplo nœmero " + new Integer(getCoveredExamples().indexOf(example) + 1)
+					+ " : " + example;
+		}
 		return res;
 	}
 

@@ -2,7 +2,6 @@ package com.roisin.core.now;
 
 import java.util.LinkedList;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.jfree.util.Log;
@@ -10,7 +9,6 @@ import org.jfree.util.Log;
 import com.rapidminer.Process;
 import com.rapidminer.RapidMiner;
 import com.rapidminer.RapidMiner.ExecutionMode;
-import com.rapidminer.example.Example;
 import com.rapidminer.example.ExampleSet;
 import com.rapidminer.operator.IOContainer;
 import com.rapidminer.operator.OperatorException;
@@ -47,14 +45,15 @@ public class App {
 			atributos.add("Humidity");
 			atributos.add("Play");
 
-			SortedSet<Integer> deletedRows = new TreeSet<Integer>();
-			deletedRows.add(2);
-			deletedRows.add(5);
-			deletedRows.add(6);
-			deletedRows.add(7);
-			deletedRows.add(9);
-			deletedRows.add(10);
-			deletedRows.add(13);
+			SortedSet<Integer> deletedRows = null;
+			// SortedSet<Integer> deletedRows = new TreeSet<Integer>();
+			// deletedRows.add(2);
+			// deletedRows.add(5);
+			// deletedRows.add(6);
+			// deletedRows.add(7);
+			// deletedRows.add(9);
+			// deletedRows.add(10);
+			// deletedRows.add(13);
 
 			String path = "/Users/felix/03.TFG/DatosDeEjemplo/exportando/prueba-excel-csv.csv";
 			String label = "Play";
@@ -89,9 +88,12 @@ public class App {
 			RoisinResults results3 = new RipperResults(ruleModel3, exampleSet3);
 			System.out.println(results3);
 
-			for (Example example : exampleSet1) {
-				System.out.println(example);
-			}
+			// Process process4 = SampleProcesses.getRipperRipley();
+			// IOContainer container4 = process4.run();
+			//
+			// RuleModel ruleModel4 = (RuleModel) container4.asList().get(0);
+			// ExampleSet exampleSet = (ExampleSet) container4.asList().get(1);
+			// ruleModel4.getRules().get(0).getCovered(0)
 
 		} catch (OperatorException e) {
 			// TODO Auto-generated catch block
