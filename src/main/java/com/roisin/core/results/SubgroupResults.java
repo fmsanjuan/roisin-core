@@ -40,6 +40,8 @@ public class SubgroupResults extends AbstractRoisinResults {
 				Log.error("Imposible crear la regla");
 			}
 		}
+		// Solapamiento
+		applyOverlappingProcedure();
 	}
 
 	/**
@@ -154,11 +156,10 @@ public class SubgroupResults extends AbstractRoisinResults {
 	private List<Example> getCoveredExamples(Rule rule, ExampleSet exampleSet) {
 		List<Example> coveredExamples = new ArrayList<Example>();
 		for (Example example : exampleSet) {
-			if (!hasBeenCovered(example) && rule.applicable(example)) {
+			if (rule.applicable(example)) {
 				coveredExamples.add(example);
 			}
 		}
-		this.alreadyCoveredExamples.addAll(coveredExamples);
 		return coveredExamples;
 	}
 

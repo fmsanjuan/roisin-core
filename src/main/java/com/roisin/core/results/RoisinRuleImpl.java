@@ -1,8 +1,11 @@
 package com.roisin.core.results;
 
 import java.util.List;
+import java.util.Set;
 
+import com.google.common.collect.Sets;
 import com.rapidminer.example.Example;
+import com.rapidminer.example.table.DataRow;
 
 import exception.RoisinRuleException;
 
@@ -208,6 +211,20 @@ public class RoisinRuleImpl implements RoisinRule {
 		return coveredExamples;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.roisin.core.results.RoisinRule#getCoveredDataRows()
+	 */
+	@Override
+	public Set<DataRow> getCoveredDataRows() {
+		Set<DataRow> coveredDataRows = Sets.newHashSet();
+		for (Example example : coveredExamples) {
+			coveredDataRows.add(example.getDataRow());
+		}
+		return coveredDataRows;
+	}
+
 	public String toString() {
 		String res = new String();
 		res += "Antecedente: " + getPremise();
@@ -222,10 +239,8 @@ public class RoisinRuleImpl implements RoisinRule {
 		res += "\nFPR: " + getFalsePositiveRate();
 		res += "\nEjemplos que cumplen la regla: ";
 		for (Example example : getCoveredExamples()) {
-			res += "\nEjemplo nœmero " + new Integer(getCoveredExamples().indexOf(example) + 1)
-					+ " : " + example;
+			res += "\nEjemplo: " + example.toString();
 		}
 		return res;
 	}
-
 }

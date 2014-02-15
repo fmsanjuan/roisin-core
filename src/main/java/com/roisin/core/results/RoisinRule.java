@@ -1,8 +1,10 @@
 package com.roisin.core.results;
 
 import java.util.List;
+import java.util.Set;
 
 import com.rapidminer.example.Example;
+import com.rapidminer.example.table.DataRow;
 
 /**
  * Interfaz para el tipo de dato RoisinRule, que se encargar‡ de recoger
@@ -86,7 +88,15 @@ public interface RoisinRule {
 	/**
 	 * Devuelve una lista con todos los ejemplos cubiertos por la regla.
 	 * 
-	 * @return coveredExamples lista de ejemplos
+	 * @return coveredExamples conjunto de ejemplos
 	 */
 	List<Example> getCoveredExamples();
+
+	/**
+	 * Devuelve un conjunto que contiene los datarows de todos los ejemplos
+	 * cubiertos por la regla.
+	 * 
+	 * @return coveredDataRows
+	 */
+	Set<DataRow> getCoveredDataRows();
 }

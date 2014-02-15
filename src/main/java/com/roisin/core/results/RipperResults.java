@@ -1,11 +1,10 @@
 package com.roisin.core.results;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import org.jfree.util.Log;
 
+import com.google.common.collect.Lists;
 import com.rapidminer.example.Attribute;
 import com.rapidminer.example.Example;
 import com.rapidminer.example.ExampleSet;
@@ -44,7 +43,6 @@ public class RipperResults extends AbstractRoisinResults {
 		super();
 		this.exampleSet = exampleSet;
 		this.label = ruleModel.getLabel();
-		this.alreadyCoveredExamples = new HashSet<Example>();
 		// Populate rules.
 		try {
 			// Se le resta uno al tama–o para eliminar la œltima regla.
@@ -56,6 +54,8 @@ public class RipperResults extends AbstractRoisinResults {
 		} catch (RoisinRuleException e) {
 			Log.error("Imposible crear la regla");
 		}
+		// Solapamiento
+		applyOverlappingProcedure();
 	}
 
 	/**
@@ -165,18 +165,9 @@ public class RipperResults extends AbstractRoisinResults {
 	 * 
 	 * @param rule
 	 *            regla
-	 * @return coveredExamples lista de ejemplos cubiertos por la regla
+	 * @return coveredExamples conjunto de ejemplos cubiertos por la regla
 	 */
 	private List<Example> getCoveredExamples(Rule rule) {
-		List<Example> coveredExamples = new ArrayList<Example>();
-		for (Example example : rule.getCovered(this.exampleSet)) {
-			// Si el ejemplo no est‡ contenido en otra regla
-			if (!hasBeenCovered(example)) {
-				coveredExamples.add(example);
-			}
-		}
-		this.alreadyCoveredExamples.addAll(coveredExamples);
-		return coveredExamples;
+		return Lists.newArrayList(rule.getCovered(exampleSet).iterator());
 	}
-
 }

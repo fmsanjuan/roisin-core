@@ -11,11 +11,11 @@
         <parameter key="repository_entry" value="//Samples/data/Ripley-Set"/>
       </operator>
       <operator activated="true" class="discretize_by_bins" compatibility="5.3.015" expanded="true" height="94" name="Discretize" width="90" x="246" y="165"/>
-      <operator activated="true" class="subgroup_discovery" compatibility="5.3.015" expanded="true" height="76" name="Subgroup Discovery" width="90" x="447" y="120"/>
+      <operator activated="true" class="subgroup_discovery" compatibility="5.3.015" expanded="true" height="76" name="Subgroup Discovery" width="90" x="447" y="30"/>
       <connect from_op="Retrieve Ripley-Set" from_port="output" to_op="Discretize" to_port="example set input"/>
       <connect from_op="Discretize" from_port="example set output" to_op="Subgroup Discovery" to_port="training set"/>
-      <connect from_op="Discretize" from_port="original" to_port="result 2"/>
       <connect from_op="Subgroup Discovery" from_port="model" to_port="result 1"/>
+      <connect from_op="Subgroup Discovery" from_port="exampleSet" to_port="result 2"/>
       <portSpacing port="source_input 1" spacing="0"/>
       <portSpacing port="sink_result 1" spacing="0"/>
       <portSpacing port="sink_result 2" spacing="0"/>

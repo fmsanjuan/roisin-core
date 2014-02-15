@@ -15,6 +15,7 @@ import com.rapidminer.operator.OperatorException;
 import com.rapidminer.operator.learner.rules.RuleModel;
 import com.rapidminer.operator.learner.subgroups.RuleSet;
 import com.roisin.core.processes.GenericProcesses;
+import com.roisin.core.processes.SampleProcesses;
 import com.roisin.core.results.RipperResults;
 import com.roisin.core.results.RoisinResults;
 import com.roisin.core.results.SubgroupResults;
@@ -39,6 +40,7 @@ public class App {
 		Log.info("Rapidminer iniciado");
 
 		try {
+
 			LinkedList<String> atributos = new LinkedList<String>();
 			atributos.add("Outlook");
 			atributos.add("Temperature");
@@ -60,8 +62,7 @@ public class App {
 			// String condition = "Outlook!=overcast";
 			String condition = null;
 
-			Process process1 = GenericProcesses.getRipper(Constants.CSV_FORMAT, path, label,
-					deletedRows, condition, atributos);
+			Process process1 = SampleProcesses.getRipper();
 
 			Process process2 = GenericProcesses.getSubgroupDiscoveryDiscretization(
 					Constants.CSV_FORMAT, path, label, deletedRows, condition, atributos);
@@ -87,6 +88,17 @@ public class App {
 			ExampleSet exampleSet3 = (ExampleSet) container3.asList().get(1);
 			RoisinResults results3 = new RipperResults(ruleModel3, exampleSet3);
 			System.out.println(results3);
+
+			Process process4 = SampleProcesses.getSubgroupDiscretization();
+
+			IOContainer container4 = process4.run();
+			RuleSet ruleSet4 = (RuleSet) container4.asList().get(Constants.PROCESS_OUTPUT_INDEX);
+			ExampleSet exampleSet4 = (ExampleSet) container4.asList().get(
+					Constants.EXAMPLE_OUTPUT_INDEX);
+			RoisinResults results4 = new SubgroupResults(ruleSet4, exampleSet4);
+			System.out.println(results4);
+
+			// ///////////////////////////////////////////////////////////////////////
 
 			// Process process4 = SampleProcesses.getRipperRipley();
 			// IOContainer container4 = process4.run();
