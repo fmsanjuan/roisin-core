@@ -46,13 +46,15 @@ public class RipperResults extends AbstractRoisinResults {
 		this.label = ruleModel.getLabel();
 		this.alreadyCoveredExamples = new HashSet<Example>();
 		// Populate rules.
-		for (Rule rule : ruleModel.getRules()) {
-			try {
+		try {
+			// Se le resta uno al tama–o para eliminar la œltima regla.
+			for (int i = 0; i < ruleModel.getRules().size() - 1; i++) {
+				Rule rule = ruleModel.getRules().get(i);
 				rules.add(new RoisinRuleImpl(getPremise(rule), rule.getLabel(), getPrecision(rule),
 						getSupport(rule), getRuleStats(rule), getCoveredExamples(rule)));
-			} catch (RoisinRuleException e) {
-				Log.error("Imposible crear la regla");
 			}
+		} catch (RoisinRuleException e) {
+			Log.error("Imposible crear la regla");
 		}
 	}
 
