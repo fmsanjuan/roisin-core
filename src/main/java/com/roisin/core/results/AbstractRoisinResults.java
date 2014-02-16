@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.rapidminer.example.table.DataRow;
+import com.roisin.core.utils.FalsePositiveRateComparator;
 
 /**
  * Clase abstracta con la implementaci—n comœn a la obtenci—n de resultados para
@@ -94,12 +96,48 @@ public abstract class AbstractRoisinResults implements RoisinResults {
 		rules.removeAll(rulesToRemove);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.roisin.core.results.RoisinResults#getRulesAuc()
+	 */
+	public double getRulesAuc() {
+		SortedSet<RoisinRule> sortedRules = Sets.newTreeSet(new FalsePositiveRateComparator());
+		sortedRules.addAll(this.rules);
+		int ruleCounter = 1;
+		double auc = 0.0;
+		double prevFpr = 0.0;
+		double prevTpr = 0.0;
+		for (RoisinRule roisinRule : sortedRules) {
+			if (ruleCounter > 1) {
+				// Se debe de calcular el tri‡ngulo y el rect‡ngulo teniendo en
+				// cuenta los datos de esta regla y la anterior.
+				// Tri‡ngulo:
+				auc += Math.abs((((roisinRule.getFalsePositiveRate() - prevFpr) * (roisinRule
+						.getTruePositiveRate() - prevTpr)) / 2.0));
+				// Rect‡ngulo
+				auc += Math.abs((roisinRule.getFalsePositiveRate() - prevFpr) * prevFpr);
+				// Cambiamos el valor de las variables prev
+				prevFpr = roisinRule.getFalsePositiveRate();
+				prevTpr = roisinRule.getTruePositiveRate();
+			} else {
+				// S—lo hay que calcular el primer tri‡ngulo.
+				prevFpr = roisinRule.getFalsePositiveRate();
+				prevTpr = roisinRule.getTruePositiveRate();
+				auc += Math.abs(((prevFpr * prevTpr) / 2.0));
+			}
+			ruleCounter++;
+		}
+		return auc;
+	}
+
 	public String toString() {
 		String res = new String();
 		for (RoisinRule rule : getRoisinRules()) {
 			res += "\n\nRegla nœmero " + new Integer(getRoisinRules().indexOf(rule) + 1);
 			res += "\n" + rule.toString();
 		}
+		res += "\nçrea bajo la curva del conjunto de reglas: " + getRulesAuc();
 		return res;
 	}
 

@@ -18,4 +18,11 @@ public interface RoisinResults {
 	 */
 	List<RoisinRule> getRoisinRules();
 
+	/**
+	 * Devuelve el ‡rea bajo la curva de un conjunto de reglas.
+	 * 
+	 * @return auc ‡rea bajo la curva
+	 */
+	public double getRulesAuc();
+
 }

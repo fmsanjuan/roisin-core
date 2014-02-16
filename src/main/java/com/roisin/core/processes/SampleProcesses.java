@@ -83,7 +83,7 @@ public class SampleProcesses {
 	public static Process getRipperRipley() {
 		Process process = null;
 		try {
-			process = new Process(new File("roisin-processes/ripley-subgroup-discretization.xml"));
+			process = new Process(new File("roisin-processes/ripley-ripper.xml"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (XMLException e) {

@@ -212,11 +212,11 @@ public class RoisinRuleImpl implements RoisinRule {
 		// cuenta tpr (y) y fpr (x).
 		double auc = 0.0;
 		// çrea del primer tri‡ngulo
-		auc += ((getFalsePositiveRate() * getTruePositiveRate()) / 2.0);
+		auc += Math.abs(((getFalsePositiveRate() * getTruePositiveRate()) / 2.0));
 		// çrea del segundo tr’angulo (el del trapecio).
-		auc += (((1.0 - getFalsePositiveRate()) * (1.0 - getTruePositiveRate())) / 2.0);
+		auc += Math.abs((((1.0 - getFalsePositiveRate()) * (1.0 - getTruePositiveRate())) / 2.0));
 		// çrea del rect‡nculo del trapecio.
-		auc += (1.0 - getFalsePositiveRate()) * getTruePositiveRate();
+		auc += Math.abs((1.0 - getFalsePositiveRate()) * getTruePositiveRate());
 		return auc;
 	}
 
