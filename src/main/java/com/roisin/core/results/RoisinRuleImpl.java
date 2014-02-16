@@ -212,11 +212,11 @@ public class RoisinRuleImpl implements RoisinRule {
 		// cuenta tpr (y) y fpr (x).
 		double auc = 0.0;
 		// çrea del primer tri‡ngulo
-		auc += getFalsePositiveRate() * getTruePositiveRate();
+		auc += ((getFalsePositiveRate() * getTruePositiveRate()) / 2.0);
 		// çrea del segundo tr’angulo (el del trapecio).
-		auc += (1 - getFalsePositiveRate()) * (1 - getTruePositiveRate());
+		auc += (((1.0 - getFalsePositiveRate()) * (1.0 - getTruePositiveRate())) / 2.0);
 		// çrea del rect‡nculo del trapecio.
-		auc += (1 - getFalsePositiveRate()) * getTruePositiveRate();
+		auc += (1.0 - getFalsePositiveRate()) * getTruePositiveRate();
 		return auc;
 	}
 
@@ -256,6 +256,7 @@ public class RoisinRuleImpl implements RoisinRule {
 		res += "\nFalse Negatives: " + getFalseNegatives();
 		res += "\nTPR: " + getTruePositiveRate();
 		res += "\nFPR: " + getFalsePositiveRate();
+		res += "\nçrea bajo la curva: " + getAuc();
 		res += "\nEjemplos que cumplen la regla: ";
 		for (Example example : getCoveredExamples()) {
 			res += "\nEjemplo: " + example.toString();
