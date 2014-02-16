@@ -99,4 +99,11 @@ public interface RoisinRule {
 	 * @return coveredDataRows
 	 */
 	Set<DataRow> getCoveredDataRows();
+
+	/**
+	 * Devuelve el ‡rea bajo la curva de la regla.
+	 * 
+	 * @return auc ‡rea bajo la curva
+	 */
+	double getAuc();
 }

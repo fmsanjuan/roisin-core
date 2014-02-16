@@ -204,6 +204,25 @@ public class RoisinRuleImpl implements RoisinRule {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.roisin.core.results.RoisinRule#getAuc()
+	 */
+	@Override
+	public double getAuc() {
+		// El c‡lculo del ‡rea bajo la curva se debe de realizar teniendo en
+		// cuenta tpr (y) y fpr (x).
+		double auc = 0.0;
+		// çrea del primer tri‡ngulo
+		auc += getFalsePositiveRate() * getTruePositiveRate();
+		// çrea del segundo tr’angulo (el del trapecio).
+		auc += (1 - getFalsePositiveRate()) * (1 - getTruePositiveRate());
+		// çrea del rect‡nculo del trapecio.
+		auc += (1 - getFalsePositiveRate()) * getTruePositiveRate();
+		return auc;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.roisin.core.results.RoisinRule#getCoveredExamples()
 	 */
 	@Override
@@ -243,4 +262,5 @@ public class RoisinRuleImpl implements RoisinRule {
 		}
 		return res;
 	}
+
 }
