@@ -1,5 +1,11 @@
 package com.roisin.core.utils;
 
+/**
+ * Constantes necesarias para el desarrollo de Roisin.
+ * 
+ * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * 
+ */
 public class Constants {
 
 	public static String EXCEL_FORMAT = "xls";
@@ -16,8 +22,18 @@ public class Constants {
 
 	public static String PORT_ORIGINAL = "original";
 
+	public static String PORT_EXAMPLE_SET = "exampleSet";
+
+	public static String PORT_EXAMPLE_SET_TREE2R = "example set";
+
+	public static String PORT_RESULT_2 = "result 2";
+
+	public static String RIPPER_SAMPLE_RATIO = "sample_ratio";
+
 	public static int PROCESS_OUTPUT_INDEX = 0;
 
 	public static int EXAMPLE_OUTPUT_INDEX = 1;
+
+	public static String TRUE = "true";
 
 }

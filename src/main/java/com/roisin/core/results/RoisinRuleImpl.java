@@ -1,7 +1,20 @@
 package com.roisin.core.results;
 
+import java.util.List;
+import java.util.Set;
+
+import com.google.common.collect.Sets;
+import com.rapidminer.example.Example;
+import com.rapidminer.example.table.DataRow;
+
 import exception.RoisinRuleException;
 
+/**
+ * Implementaci—n del tipo de dato RoisinRule.
+ * 
+ * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * 
+ */
 public class RoisinRuleImpl implements RoisinRule {
 
 	/**
@@ -55,6 +68,11 @@ public class RoisinRuleImpl implements RoisinRule {
 	private int fn;
 
 	/**
+	 * Examples that are covered by the rule.
+	 */
+	private List<Example> coveredExamples;
+
+	/**
 	 * Constructor pœblico.
 	 * 
 	 * @param premise
@@ -65,7 +83,7 @@ public class RoisinRuleImpl implements RoisinRule {
 	 * @throws RoisinRuleException
 	 */
 	public RoisinRuleImpl(String premise, String conclusion, double precision, double support,
-			int[] stats) throws RoisinRuleException {
+			int[] stats, List<Example> coveredExamples) throws RoisinRuleException {
 		super();
 		if (!(premise != null && conclusion != null)) {
 			throw new RoisinRuleException("Error en la creaci—n de reglas");
@@ -80,6 +98,7 @@ public class RoisinRuleImpl implements RoisinRule {
 		this.fn = stats[3];
 		this.tpr = new Double(tp) / new Double(tp + fn);
 		this.fpr = new Double(fp) / new Double(tn + fp);
+		this.coveredExamples = coveredExamples;
 	}
 
 	/*
@@ -182,6 +201,49 @@ public class RoisinRuleImpl implements RoisinRule {
 		return fn;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.roisin.core.results.RoisinRule#getAuc()
+	 */
+	@Override
+	public double getAuc() {
+		// El c‡lculo del ‡rea bajo la curva se debe de realizar teniendo en
+		// cuenta tpr (y) y fpr (x).
+		double auc = 0.0;
+		// çrea del primer tri‡ngulo
+		auc += Math.abs(((getFalsePositiveRate() * getTruePositiveRate()) / 2.0));
+		// çrea del segundo tr’angulo (el del trapecio).
+		auc += Math.abs((((1.0 - getFalsePositiveRate()) * (1.0 - getTruePositiveRate())) / 2.0));
+		// çrea del rect‡nculo del trapecio.
+		auc += Math.abs((1.0 - getFalsePositiveRate()) * getTruePositiveRate());
+		return auc;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.roisin.core.results.RoisinRule#getCoveredExamples()
+	 */
+	@Override
+	public List<Example> getCoveredExamples() {
+		return coveredExamples;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.roisin.core.results.RoisinRule#getCoveredDataRows()
+	 */
+	@Override
+	public Set<DataRow> getCoveredDataRows() {
+		Set<DataRow> coveredDataRows = Sets.newHashSet();
+		for (Example example : coveredExamples) {
+			coveredDataRows.add(example.getDataRow());
+		}
+		return coveredDataRows;
+	}
+
 	public String toString() {
 		String res = new String();
 		res += "Antecedente: " + getPremise();
@@ -194,6 +256,11 @@ public class RoisinRuleImpl implements RoisinRule {
 		res += "\nFalse Negatives: " + getFalseNegatives();
 		res += "\nTPR: " + getTruePositiveRate();
 		res += "\nFPR: " + getFalsePositiveRate();
+		res += "\nçrea bajo la curva: " + getAuc();
+		res += "\nEjemplos que cumplen la regla: ";
+		for (Example example : getCoveredExamples()) {
+			res += "\nEjemplo: " + example.toString();
+		}
 		return res;
 	}
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.3.015">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.3.015" expanded="true" name="Process">
+    <process expanded="true">
+      <operator activated="true" class="retrieve" compatibility="5.3.015" expanded="true" height="60" name="Retrieve Ripley-Set" width="90" x="112" y="120">
+        <parameter key="repository_entry" value="//Samples/data/Ripley-Set"/>
+      </operator>
+      <operator activated="true" class="rule_induction" compatibility="5.3.015" expanded="true" height="76" name="Rule Induction" width="90" x="447" y="30">
+        <parameter key="sample_ratio" value="1.0"/>
+      </operator>
+      <connect from_op="Retrieve Ripley-Set" from_port="output" to_op="Rule Induction" to_port="training set"/>
+      <connect from_op="Rule Induction" from_port="model" to_port="result 1"/>
+      <connect from_op="Rule Induction" from_port="exampleSet" to_port="result 2"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <portSpacing port="sink_result 3" spacing="0"/>
+    </process>
+  </operator>
+</process>

@@ -8,4 +8,8 @@ public class Utils {
 		return exampleSet.getExampleTable().size();
 	}
 
+	public static boolean isConsecutivo(int a, int b) {
+		return b - a == 1;
+	}
+
 }

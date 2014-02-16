@@ -80,4 +80,16 @@ public class SampleProcesses {
 		return process;
 	}
 
+	public static Process getRipperRipley() {
+		Process process = null;
+		try {
+			process = new Process(new File("roisin-processes/ripley-ripper.xml"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (XMLException e) {
+			e.printStackTrace();
+		}
+		return process;
+	}
+
 }

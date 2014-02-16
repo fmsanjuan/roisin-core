@@ -1,6 +1,9 @@
 package com.roisin.core.processes;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
@@ -12,12 +15,20 @@ import com.rapidminer.operator.io.XrffExampleSource;
 import com.rapidminer.operator.nio.CSVExampleSource;
 import com.rapidminer.operator.nio.ExcelExampleSource;
 import com.rapidminer.operator.preprocessing.filter.ExampleFilter;
+import com.rapidminer.operator.preprocessing.filter.ExampleRangeFilter;
 import com.rapidminer.operator.preprocessing.filter.attributes.AttributeFilter;
 import com.rapidminer.tools.OperatorService;
 import com.roisin.core.utils.Constants;
 
 import exception.RoisinException;
 
+/**
+ * Clase que contiene los métodos necesarios para llevar a cabo las tareas de
+ * preprocesamiento de datos.
+ * 
+ * @author Félix Miguel Sanjuán Segovia <fmsanse@gmail.com>
+ * 
+ */
 public class Preprocessing {
 
 	/**
@@ -107,17 +118,107 @@ public class Preprocessing {
 		return attributeFilter;
 	}
 
-	public static Process getPreprocessedData(String format, String path, String filterCondition,
-			List<String> attributeSelection, String label) throws RoisinException {
+	/**
+	 * Devuelve un operador que realiza un filtrado de conjunto de datos de
+	 * ejemplo a partir del rango pasado como parámetro.
+	 * 
+	 * @param inicio
+	 *            primera fila del rango
+	 * @param fin
+	 *            última fila del rango
+	 * @return
+	 */
+	public static ExampleRangeFilter getExampleRangeFilter(int inicio, int fin) {
+		ExampleRangeFilter rangeFilter = null;
+		try {
+			rangeFilter = OperatorService.createOperator(ExampleRangeFilter.class);
+			rangeFilter.setParameter(ExampleRangeFilter.PARAMETER_FIRST_EXAMPLE,
+					Integer.toString(inicio));
+			rangeFilter.setParameter(ExampleRangeFilter.PARAMETER_LAST_EXAMPLE,
+					Integer.toString(fin));
+			rangeFilter.setParameter(ExampleRangeFilter.PARAMETER_INVERT_FILTER, Constants.TRUE);
+		} catch (OperatorCreationException e) {
+			log.error("No ha sido posible crear el filtro por filas => " + e);
+		}
+		return rangeFilter;
+	}
+
+	/**
+	 * Este método devuelve una lista con todos los filtros de ejemplos por
+	 * rango necesarios para eliminar las filas que se indican en el conjunto de
+	 * enteros ordenado que se pasa como parámetro.
+	 * 
+	 * @param deletedRows
+	 *            filas que se desean eliminar
+	 * @return filters operadores encargados de realizar el filtrado
+	 */
+	public static List<ExampleRangeFilter> getExampleFilterByRow(SortedSet<Integer> deletedRows) {
+		List<ExampleRangeFilter> filters = new ArrayList<ExampleRangeFilter>();
+		// El siguiente algoritmo calcula aquellas filas que pueden ser
+		// evaluadas como un rango de filas.
+		Iterator<Integer> iterator = deletedRows.iterator();
+		if (iterator.hasNext()) {
+			// Marca el inicio del rango en caso de que a y b sean consecutivos.
+			int inicio = -1;
+			// Esta variable es un contador que marca el número de ejemplos
+			// borrados.
+			int ejemplosBorrados = 0;
+			int a = iterator.next();
+			while (iterator.hasNext()) {
+				int b = iterator.next();
+				inicio = inicio == -1 ? a : inicio;
+				if (b - a > 1) {
+					// Si no son consecutivos, se crea el filtro con el último
+					// rango hasta a.
+					ExampleRangeFilter rangeFilter = getExampleRangeFilter(inicio
+							- ejemplosBorrados, a - ejemplosBorrados);
+					filters.add(rangeFilter);
+					// Se incrementa el contador con el número de ejemplos que
+					// han sido filtrados.
+					ejemplosBorrados += a - inicio + 1;
+					inicio = -1;
+				}
+				a = b;
+			}
+			inicio = inicio == -1 ? a : inicio;
+			ExampleRangeFilter rangeFilter = getExampleRangeFilter(inicio - ejemplosBorrados, a
+					- ejemplosBorrados);
+			filters.add(rangeFilter);
+		}
+		return filters;
+	}
+
+	/**
+	 * Devuelve el proceso con todos los operadores relacionados con la fase de
+	 * preprocesamiento.
+	 * 
+	 * @param format
+	 * @param path
+	 * @param filterCondition
+	 * @param attributeSelection
+	 * @param label
+	 * @return
+	 * @throws RoisinException
+	 */
+	public static Process getPreprocessedData(String format, String path,
+			SortedSet<Integer> rowFilter, String filterCondition, List<String> attributeSelection,
+			String label) throws RoisinException {
 		Process process = new Process();
 		Operator reader = Preprocessing.getReader(format, path);
 		process.getRootOperator().getSubprocess(0).addOperator(reader);
-
-		/* Adding filters */
+		// Filtrado de filas
+		if (rowFilter != null && !rowFilter.isEmpty()) {
+			List<ExampleRangeFilter> filters = getExampleFilterByRow(rowFilter);
+			for (ExampleRangeFilter exampleRangeFilter : filters) {
+				process.getRootOperator().getSubprocess(0).addOperator(exampleRangeFilter);
+			}
+		}
+		// Filtrado de filas mediante condición
 		if (filterCondition != null) {
 			process.getRootOperator().getSubprocess(0)
 					.addOperator(Preprocessing.getExampleFilter(filterCondition));
 		}
+		// Filtrado de columnas
 		if (attributeSelection != null) {
 			if (!attributeSelection.isEmpty() && attributeSelection.contains(label)) {
 				process.getRootOperator().getSubprocess(0)

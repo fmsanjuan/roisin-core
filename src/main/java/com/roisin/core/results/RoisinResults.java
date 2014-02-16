@@ -2,6 +2,13 @@ package com.roisin.core.results;
 
 import java.util.List;
 
+/**
+ * Interfaz del tipo RoisinResults que se encargar‡ del c‡lculo de resultados
+ * para Roisin a partir de las reglas obtenidas.
+ * 
+ * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * 
+ */
 public interface RoisinResults {
 
 	/**
@@ -10,5 +17,12 @@ public interface RoisinResults {
 	 * @return rules lista de reglas
 	 */
 	List<RoisinRule> getRoisinRules();
+
+	/**
+	 * Devuelve el ‡rea bajo la curva de un conjunto de reglas.
+	 * 
+	 * @return auc ‡rea bajo la curva
+	 */
+	public double getRulesAuc();
 
 }

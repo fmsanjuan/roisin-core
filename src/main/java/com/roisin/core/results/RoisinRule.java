@@ -1,5 +1,18 @@
 package com.roisin.core.results;
 
+import java.util.List;
+import java.util.Set;
+
+import com.rapidminer.example.Example;
+import com.rapidminer.example.table.DataRow;
+
+/**
+ * Interfaz para el tipo de dato RoisinRule, que se encargar‡ de recoger
+ * aquellos datos necesarios para la aplicaci—n.
+ * 
+ * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * 
+ */
 public interface RoisinRule {
 
 	/**
@@ -71,4 +84,26 @@ public interface RoisinRule {
 	 * @return fn nœmero total de falsos negativos
 	 */
 	int getFalseNegatives();
+
+	/**
+	 * Devuelve una lista con todos los ejemplos cubiertos por la regla.
+	 * 
+	 * @return coveredExamples conjunto de ejemplos
+	 */
+	List<Example> getCoveredExamples();
+
+	/**
+	 * Devuelve un conjunto que contiene los datarows de todos los ejemplos
+	 * cubiertos por la regla.
+	 * 
+	 * @return coveredDataRows
+	 */
+	Set<DataRow> getCoveredDataRows();
+
+	/**
+	 * Devuelve el ‡rea bajo la curva de la regla.
+	 * 
+	 * @return auc ‡rea bajo la curva
+	 */
+	double getAuc();
 }

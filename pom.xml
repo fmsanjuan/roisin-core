@@ -36,6 +36,11 @@
         <artifactId>rapidminer-dependencies</artifactId>
         <version>5.3.013</version>
     </dependency>
+    <dependency>
+		<groupId>com.google.guava</groupId>
+		<artifactId>guava</artifactId>
+		<version>15.0</version>
+	</dependency>
   </dependencies>
   
   <repositories>
