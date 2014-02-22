@@ -53,7 +53,6 @@ public abstract class AbstractRoisinResults implements RoisinResults {
 		}
 		// Lista de reglas que deben ser eliminadas.
 		Set<RoisinRule> rulesToRemove = Sets.newHashSet();
-		Map<Set<DataRow>, Set<RoisinRule>> equalRules = Maps.newHashMap();
 		// Recorremos todas las reglas
 		for (RoisinRule rule : rules) {
 			// Se comprueba si el conjunto de ejemplos de la regla contiene a
@@ -64,34 +63,11 @@ public abstract class AbstractRoisinResults implements RoisinResults {
 				// ejemplos que contiene otra regla, la metemos en la lista de
 				// reglas a borrar.
 				if (!entry.getKey().equals(rule)
-						&& Sets.newHashSet(rule.getCoveredDataRows()).containsAll(entry.getValue())) {
-					// Si son iguales, hay que quedarse con una de las reglas.
-					if (Sets.newHashSet(rule.getCoveredDataRows()).equals(entry.getValue())) {
-						// De momento las almacenamos en un mapa.
-						if (!equalRules.containsKey(entry.getValue())) {
-							// Si no se había dado el caso antes
-							equalRules.put(entry.getValue(), Sets.newHashSet(rule, entry.getKey()));
-						} else {
-							// Si ya se han encontrado reglas que estén
-							// cubiertas por los mismos ejemplos, se añaden las
-							// dos.
-							equalRules.get(entry.getValue()).add(rule);
-							equalRules.get(entry.getValue()).add(entry.getKey());
-						}
-					} else {
-						// Se añade a la lista de candidatas para borrar
-						rulesToRemove.add(entry.getKey());
-					}
+						&& Sets.newHashSet(rule.getCoveredDataRows()).containsAll(entry.getValue())
+						&& !Sets.newHashSet(rule.getCoveredDataRows()).equals(entry.getValue())) {
+					rulesToRemove.add(entry.getKey());
 				}
 			}
-		}
-		// De las reglas que contienen los mismos conjuntos de ejemplos,
-		// escogemos una para eliminar de forma aleatoria.
-		for (Set<RoisinRule> roisinRuleSet : equalRules.values()) {
-			// Se borra la regla que se va a mantener.
-			roisinRuleSet.remove(roisinRuleSet.iterator().next());
-			// Se añaden las otras a la lista de borrado.
-			rulesToRemove.addAll(roisinRuleSet);
 		}
 		rules.removeAll(rulesToRemove);
 	}
