@@ -50,7 +50,7 @@ public class Preprocessing {
 	public static Operator getReader(String format, String path) {
 		Operator reader = null;
 		try {
-			if (format.equals(Constants.EXCEL_FORMAT)) {
+			if (format.equals(Constants.EXCEL_FORMAT) || format.equals(Constants.EXCEL_FORMAT_2007)) {
 				reader = OperatorService.createOperator(ExcelExampleSource.class);
 				reader.setParameter(ExcelExampleSource.PARAMETER_EXCEL_FILE, path);
 			} else if (format.equals(Constants.ARFF_FORMAT)) {
