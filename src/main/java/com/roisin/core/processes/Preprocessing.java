@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.rapidminer.Process;
@@ -215,7 +216,7 @@ public class Preprocessing {
 			}
 		}
 		// Filtrado de filas mediante condición
-		if (filterCondition != null) {
+		if (!StringUtils.isBlank(filterCondition)) {
 			process.getRootOperator().getSubprocess(0)
 					.addOperator(Preprocessing.getExampleFilter(filterCondition));
 		}
