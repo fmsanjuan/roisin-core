@@ -11,7 +11,11 @@ import org.apache.log4j.Logger;
 import com.rapidminer.Process;
 import com.rapidminer.operator.Operator;
 import com.rapidminer.operator.OperatorCreationException;
+import com.rapidminer.operator.io.ArffExampleSetWriter;
 import com.rapidminer.operator.io.ArffExampleSource;
+import com.rapidminer.operator.io.CSVExampleSetWriter;
+import com.rapidminer.operator.io.ExcelExampleSetWriter;
+import com.rapidminer.operator.io.XrffExampleSetWriter;
 import com.rapidminer.operator.io.XrffExampleSource;
 import com.rapidminer.operator.nio.CSVExampleSource;
 import com.rapidminer.operator.nio.ExcelExampleSource;
@@ -48,9 +52,10 @@ public class Preprocessing {
 	 *            ruta en la que se encuentra el fichero
 	 * @return operador
 	 */
-	public static Operator getReader(String format, String path) {
+	public static Operator getReader(String path) {
 		Operator reader = null;
 		try {
+			String format = StringUtils.substringAfterLast(path, Constants.DOT_SYMBOL);
 			if (format.equals(Constants.EXCEL_FORMAT) || format.equals(Constants.EXCEL_FORMAT_2007)) {
 				reader = OperatorService.createOperator(ExcelExampleSource.class);
 				reader.setParameter(ExcelExampleSource.PARAMETER_EXCEL_FILE, path);
@@ -70,6 +75,42 @@ public class Preprocessing {
 			log.error("No ha sido posible obtener información del archivo indicado");
 		}
 		return reader;
+	}
+
+	/**
+	 * Este método devuelve el operador correspondiente a la escritura de datos
+	 * (ExampleSet) a partir del formato indicado.
+	 * 
+	 * @param format
+	 *            formato del fichero
+	 * @param path
+	 *            ruta donde se guardará el fichero
+	 * @return
+	 */
+	public static Operator getWriter(String path) {
+		Operator writer = null;
+		try {
+			String format = StringUtils.substringAfterLast(path, Constants.DOT_SYMBOL);
+			if (format.equals(Constants.EXCEL_FORMAT) || format.equals(Constants.EXCEL_FORMAT_2007)) {
+				writer = OperatorService.createOperator(ExcelExampleSetWriter.class);
+				writer.setParameter(ExcelExampleSetWriter.PARAMETER_EXCEL_FILE, path);
+				writer.setParameter(ExcelExampleSetWriter.PARAMETER_FILE_FORMAT, format);
+			} else if (format.equals(Constants.ARFF_FORMAT)) {
+				writer = OperatorService.createOperator(ArffExampleSetWriter.class);
+				writer.setParameter(ArffExampleSetWriter.PARAMETER_EXAMPLE_SET_FILE, path);
+			} else if (format.equals(Constants.XRFF_FORMAT)) {
+				writer = OperatorService.createOperator(XrffExampleSetWriter.class);
+				writer.setParameter(XrffExampleSetWriter.PARAMETER_EXAMPLE_SET_FILE, path);
+			} else if (format.equals(Constants.CSV_FORMAT)) {
+				writer = OperatorService.createOperator(CSVExampleSetWriter.class);
+				writer.setParameter(CSVExampleSetWriter.PARAMETER_CSV_FILE, path);
+			} else {
+				throw new IllegalArgumentException("Formato de entrada no válido");
+			}
+		} catch (OperatorCreationException e) {
+			log.error("No ha sido posible obtener información del archivo indicado");
+		}
+		return writer;
 	}
 
 	/**
@@ -198,15 +239,13 @@ public class Preprocessing {
 	 * @param path
 	 * @param filterCondition
 	 * @param attributeSelection
-	 * @param label
 	 * @return
 	 * @throws RoisinException
 	 */
-	public static Process getPreprocessedData(String format, String path,
-			SortedSet<Integer> rowFilter, String filterCondition, List<String> attributeSelection,
-			String label) throws RoisinException {
+	public static Process getPreprocessedData(String path, SortedSet<Integer> rowFilter,
+			String filterCondition, List<String> attributeSelection) throws RoisinException {
 		Process process = new Process();
-		Operator reader = Preprocessing.getReader(format, path);
+		Operator reader = Preprocessing.getReader(path);
 		process.getRootOperator().getSubprocess(0).addOperator(reader);
 		// Filtrado de filas
 		if (rowFilter != null && !rowFilter.isEmpty()) {
@@ -222,13 +261,39 @@ public class Preprocessing {
 		}
 		// Filtrado de columnas
 		if (attributeSelection != null) {
-			if (!attributeSelection.isEmpty() && attributeSelection.contains(label)) {
-				process.getRootOperator().getSubprocess(0)
-						.addOperator(Preprocessing.getAttributeSelection(attributeSelection));
-			} else {
-				throw new RoisinException("Se está filtrando sin incluir la clase");
-			}
+			// Eliminada validación de clase contenida en atributos
+			// seleccionados para la exportación de datos en un fichero. La
+			// validación se realiza ahora en spring.
+			process.getRootOperator().getSubprocess(0)
+					.addOperator(Preprocessing.getAttributeSelection(attributeSelection));
 		}
+		return process;
+	}
+
+	/**
+	 * Devuelve un proceso que al ejecutarse preprocesa toda la información
+	 * según los parámetros datos en un fichero cuyo formato se pasa como
+	 * parámetro.
+	 * 
+	 * @param inputFormat
+	 * @param inputPath
+	 * @param rowFilter
+	 * @param filterCondition
+	 * @param attributeSelection
+	 * @param outputFormat
+	 * @param outputPath
+	 * @return
+	 * @throws RoisinException
+	 */
+	public static Process getPreprocessedDataFile(String inputPath, SortedSet<Integer> rowFilter,
+			String filterCondition, List<String> attributeSelection, String outputPath)
+			throws RoisinException {
+		Process process = getPreprocessedData(inputPath, rowFilter, filterCondition,
+				attributeSelection);
+		process.getRootOperator().getSubprocess(0).addOperator(getWriter(outputPath));
+		// Auto wire connects the last operator to result 1 automatically.
+		process.getRootOperator().getSubprocess(0)
+				.autoWire(CompatibilityLevel.VERSION_5, true, true);
 		return process;
 	}
 
@@ -242,7 +307,7 @@ public class Preprocessing {
 	 */
 	public static Process getExampleSetFromFileProcess(String format, String path) {
 		Process process = new Process();
-		Operator reader = getReader(format, path);
+		Operator reader = getReader(path);
 		process.getRootOperator().getSubprocess(0).addOperator(reader);
 		process.getRootOperator().getSubprocess(0)
 				.autoWire(CompatibilityLevel.VERSION_5, true, true);

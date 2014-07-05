@@ -20,10 +20,10 @@ import com.roisin.core.utils.Constants;
 import exception.RoisinException;
 
 /**
- * Implementaci—n de los mŽtodos necesarios para obtener los procesos Ripper,
+ * Implementaciï¿½n de los mï¿½todos necesarios para obtener los procesos Ripper,
  * Tree2Rules y Subgroup Discovery.
  * 
- * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * @author Fï¿½lix Miguel Sanjuï¿½n Segovia <fmsanse@gmail.com>
  * 
  */
 public class GenericProcesses {
@@ -34,9 +34,9 @@ public class GenericProcesses {
 	private static Logger log = Logger.getLogger(GenericProcesses.class);
 
 	/**
-	 * Este mŽtodo devueve el proceso que contiene el algoritmo Ripper para un
+	 * Este mï¿½todo devueve el proceso que contiene el algoritmo Ripper para un
 	 * conjunto de datos dado. Se debe indicar fuente del conjunto de datos y
-	 * formato. TambiŽn permite filtrado por filas o columnas.
+	 * formato. Tambiï¿½n permite filtrado por filas o columnas.
 	 * 
 	 * @param sourceFormat
 	 *            formato de conjunto de datos
@@ -45,19 +45,19 @@ public class GenericProcesses {
 	 * @param label
 	 *            clase
 	 * @param deletedRows
-	 *            filas que ser‡n borradas
+	 *            filas que serï¿½n borradas
 	 * @param filterCondition
-	 *            condici—n para el filtrado por filas
+	 *            condiciï¿½n para el filtrado por filas
 	 * @param attributeSelection
-	 *            condici—n para el filtrado por columnas
+	 *            condiciï¿½n para el filtrado por columnas
 	 * @return process proceso
 	 */
-	public static Process getRipper(String sourceFormat, String sourcePath, String label,
+	public static Process getRipper(String sourcePath, String label,
 			SortedSet<Integer> deletedRows, String filterCondition, List<String> attributeSelection) {
 		Process process = null;
 		try {
-			process = Preprocessing.getPreprocessedData(sourceFormat, sourcePath, deletedRows,
-					filterCondition, attributeSelection, label);
+			process = Preprocessing.getPreprocessedData(sourcePath, deletedRows, filterCondition,
+					attributeSelection);
 			/* Setting roles */
 			ChangeAttributeRole setRoleOperator = OperatorService
 					.createOperator(ChangeAttributeRole.class);
@@ -83,15 +83,15 @@ public class GenericProcesses {
 		} catch (OperatorCreationException e) {
 			log.error("No ha sido posible crear el proceso para usar el algoritmo Ripper");
 		} catch (RoisinException e) {
-			log.error("Error en la obtenci—n del proceso para el algoritmo ripper => " + e);
+			log.error("Error en la obtenciï¿½n del proceso para el algoritmo ripper => " + e);
 		}
 		return process;
 	}
 
 	/**
-	 * Este mŽtodo devueve el proceso que contiene el algoritmo
+	 * Este mï¿½todo devueve el proceso que contiene el algoritmo
 	 * SubgroupDiscovery para un conjunto de datos dado. Se debe indicar fuente
-	 * del conjunto de datos y formato. TambiŽn permite filtrado por filas o
+	 * del conjunto de datos y formato. Tambiï¿½n permite filtrado por filas o
 	 * columnas.
 	 * 
 	 * @param sourceFormat
@@ -101,11 +101,11 @@ public class GenericProcesses {
 	 * @param label
 	 *            clase
 	 * @param deletedRows
-	 *            filas que ser‡n borradas
+	 *            filas que serï¿½n borradas
 	 * @param filterCondition
-	 *            condici—n para el filtrado por filas
+	 *            condiciï¿½n para el filtrado por filas
 	 * @param attributeSelection
-	 *            condici—n para el filtrado por columnas
+	 *            condiciï¿½n para el filtrado por columnas
 	 * @return process proceso
 	 */
 	public static Process getSubgroupDiscoveryDiscretization(String sourceFormat,
@@ -113,8 +113,8 @@ public class GenericProcesses {
 			String filterCondition, List<String> attributeSelection) {
 		Process process = null;
 		try {
-			process = Preprocessing.getPreprocessedData(sourceFormat, sourcePath, deletedRows,
-					filterCondition, attributeSelection, label);
+			process = Preprocessing.getPreprocessedData(sourcePath, deletedRows, filterCondition,
+					attributeSelection);
 			/* Setting roles */
 			ChangeAttributeRole setRoleOperator = OperatorService
 					.createOperator(ChangeAttributeRole.class);
@@ -145,16 +145,16 @@ public class GenericProcesses {
 		} catch (OperatorCreationException e) {
 			log.error("No ha sido posible crear el proceso para usar el algoritmo Subgroup Discovery");
 		} catch (RoisinException e) {
-			log.error("Error en la obtenci—n del proceso para el algoritmo Subgroup Discovery => "
+			log.error("Error en la obtenciï¿½n del proceso para el algoritmo Subgroup Discovery => "
 					+ e);
 		}
 		return process;
 	}
 
 	/**
-	 * Este mŽtodo devueve el proceso que contiene el algoritmo TreeToRules para
+	 * Este mï¿½todo devueve el proceso que contiene el algoritmo TreeToRules para
 	 * un conjunto de datos dado. Se debe indicar fuente del conjunto de datos y
-	 * formato. TambiŽn permite filtrado por filas o columnas.
+	 * formato. Tambiï¿½n permite filtrado por filas o columnas.
 	 * 
 	 * @param sourceFormat
 	 *            formato de conjunto de datos
@@ -163,11 +163,11 @@ public class GenericProcesses {
 	 * @param label
 	 *            clase
 	 * @param deletedRows
-	 *            filas que ser‡n borradas
+	 *            filas que serï¿½n borradas
 	 * @param filterCondition
-	 *            condici—n para el filtrado por filas
+	 *            condiciï¿½n para el filtrado por filas
 	 * @param attributeSelection
-	 *            condici—n para el filtrado por columnas
+	 *            condiciï¿½n para el filtrado por columnas
 	 * @return process proceso
 	 */
 	public static Process getDecisionTreeToRules(String sourceFormat, String sourcePath,
@@ -175,8 +175,8 @@ public class GenericProcesses {
 			List<String> attributeSelection) {
 		Process process = null;
 		try {
-			process = Preprocessing.getPreprocessedData(sourceFormat, sourcePath, deletedRows,
-					filterCondition, attributeSelection, label);
+			process = Preprocessing.getPreprocessedData(sourcePath, deletedRows, filterCondition,
+					attributeSelection);
 			/* Setting roles */
 			ChangeAttributeRole setRoleOperator = OperatorService
 					.createOperator(ChangeAttributeRole.class);
@@ -206,7 +206,7 @@ public class GenericProcesses {
 		} catch (OperatorCreationException e) {
 			log.error("No ha sido posible crear el proceso para usar el algoritmo Subgroup Discovery");
 		} catch (RoisinException e) {
-			log.error("Error en la obtenci—n del proceso para el algoritmo Subgroup Discovery => "
+			log.error("Error en la obtenciï¿½n del proceso para el algoritmo Subgroup Discovery => "
 					+ e);
 		}
 		return process;
