@@ -28,7 +28,7 @@ public class App {
 			RapidMiner.setExecutionMode(ExecutionMode.COMMAND_LINE);
 			RapidMiner.init();
 		} catch (Exception e) {
-			log.error("No ha sido posible iniciar Rapidminer. Revise la configuración.");
+			log.error("No ha sido posible iniciar Rapidminer. Revise la configuraci√≥n.");
 		}
 		Log.info("Rapidminer iniciado");
 

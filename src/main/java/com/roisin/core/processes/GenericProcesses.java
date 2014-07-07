@@ -3,6 +3,7 @@ package com.roisin.core.processes;
 import java.util.List;
 import java.util.SortedSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.rapidminer.Process;
@@ -20,10 +21,10 @@ import com.roisin.core.utils.Constants;
 import exception.RoisinException;
 
 /**
- * Implementaci�n de los m�todos necesarios para obtener los procesos Ripper,
+ * Implementación de los métodos necesarios para obtener los procesos Ripper,
  * Tree2Rules y Subgroup Discovery.
  * 
- * @author F�lix Miguel Sanju�n Segovia <fmsanse@gmail.com>
+ * @author Félix Miguel Sanjuán Segovia <felsanseg@alum.us.es>
  * 
  */
 public class GenericProcesses {
@@ -34,9 +35,9 @@ public class GenericProcesses {
 	private static Logger log = Logger.getLogger(GenericProcesses.class);
 
 	/**
-	 * Este m�todo devueve el proceso que contiene el algoritmo Ripper para un
+	 * Este método devueve el proceso que contiene el algoritmo Ripper para un
 	 * conjunto de datos dado. Se debe indicar fuente del conjunto de datos y
-	 * formato. Tambi�n permite filtrado por filas o columnas.
+	 * formato. También permite filtrado por filas o columnas.
 	 * 
 	 * @param sourceFormat
 	 *            formato de conjunto de datos
@@ -45,15 +46,17 @@ public class GenericProcesses {
 	 * @param label
 	 *            clase
 	 * @param deletedRows
-	 *            filas que ser�n borradas
+	 *            filas que serán borradas
 	 * @param filterCondition
-	 *            condici�n para el filtrado por filas
+	 *            condición para el filtrado por filas
 	 * @param attributeSelection
-	 *            condici�n para el filtrado por columnas
+	 *            condición para el filtrado por columnas
 	 * @return process proceso
 	 */
 	public static Process getRipper(String sourcePath, String label,
-			SortedSet<Integer> deletedRows, String filterCondition, List<String> attributeSelection) {
+			SortedSet<Integer> deletedRows, String filterCondition,
+			List<String> attributeSelection, String criterion, String sampleRatio, String pureness,
+			String minimalPruneBenefit) {
 		Process process = null;
 		try {
 			process = Preprocessing.getPreprocessedData(sourcePath, deletedRows, filterCondition,
@@ -65,8 +68,9 @@ public class GenericProcesses {
 			setRoleOperator
 					.setParameter(ChangeAttributeRole.PARAMETER_TARGET_ROLE, Constants.LABEL);
 			/* Rule Induction */
-			RuleLearner ruleInductionOperator = OperatorService.createOperator(RuleLearner.class);
-			ruleInductionOperator.setParameter(Constants.RIPPER_SAMPLE_RATIO, "1.0");
+			RuleLearner ruleInductionOperator = getRuleLearnerOperator(criterion, sampleRatio,
+					pureness, minimalPruneBenefit);
+			// Se añaden los operadores al proceso
 			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
 			process.getRootOperator().getSubprocess(0).addOperator(ruleInductionOperator);
 			// Es obligatorio devolver el conjunto de datos de ejemplo como un
@@ -83,15 +87,15 @@ public class GenericProcesses {
 		} catch (OperatorCreationException e) {
 			log.error("No ha sido posible crear el proceso para usar el algoritmo Ripper");
 		} catch (RoisinException e) {
-			log.error("Error en la obtenci�n del proceso para el algoritmo ripper => " + e);
+			log.error("Error en la obtención del proceso para el algoritmo ripper => " + e);
 		}
 		return process;
 	}
 
 	/**
-	 * Este m�todo devueve el proceso que contiene el algoritmo
+	 * Este método devueve el proceso que contiene el algoritmo
 	 * SubgroupDiscovery para un conjunto de datos dado. Se debe indicar fuente
-	 * del conjunto de datos y formato. Tambi�n permite filtrado por filas o
+	 * del conjunto de datos y formato. También permite filtrado por filas o
 	 * columnas.
 	 * 
 	 * @param sourceFormat
@@ -101,16 +105,18 @@ public class GenericProcesses {
 	 * @param label
 	 *            clase
 	 * @param deletedRows
-	 *            filas que ser�n borradas
+	 *            filas que serán borradas
 	 * @param filterCondition
-	 *            condici�n para el filtrado por filas
+	 *            condición para el filtrado por filas
 	 * @param attributeSelection
-	 *            condici�n para el filtrado por columnas
+	 *            condición para el filtrado por columnas
 	 * @return process proceso
 	 */
 	public static Process getSubgroupDiscoveryDiscretization(String sourceFormat,
 			String sourcePath, String label, SortedSet<Integer> deletedRows,
-			String filterCondition, List<String> attributeSelection) {
+			String filterCondition, List<String> attributeSelection, String mode,
+			String utilityFunction, String minUtility, String kBestRules, String maxDepth,
+			String minCoverage) {
 		Process process = null;
 		try {
 			process = Preprocessing.getPreprocessedData(sourcePath, deletedRows, filterCondition,
@@ -125,8 +131,8 @@ public class GenericProcesses {
 			BinDiscretization discretizationOperator = OperatorService
 					.createOperator(BinDiscretization.class);
 			/* Subgroup discovery */
-			SubgroupDiscovery subgroupDiscoveryOperator = OperatorService
-					.createOperator(SubgroupDiscovery.class);
+			SubgroupDiscovery subgroupDiscoveryOperator = getSubgroupDiscoveryOperator(mode,
+					utilityFunction, minUtility, kBestRules, maxDepth, minCoverage);
 			// Adding operators
 			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
 			process.getRootOperator().getSubprocess(0).addOperator(discretizationOperator);
@@ -145,16 +151,16 @@ public class GenericProcesses {
 		} catch (OperatorCreationException e) {
 			log.error("No ha sido posible crear el proceso para usar el algoritmo Subgroup Discovery");
 		} catch (RoisinException e) {
-			log.error("Error en la obtenci�n del proceso para el algoritmo Subgroup Discovery => "
+			log.error("Error en la obtención del proceso para el algoritmo Subgroup Discovery => "
 					+ e);
 		}
 		return process;
 	}
 
 	/**
-	 * Este m�todo devueve el proceso que contiene el algoritmo TreeToRules para
+	 * Este método devueve el proceso que contiene el algoritmo TreeToRules para
 	 * un conjunto de datos dado. Se debe indicar fuente del conjunto de datos y
-	 * formato. Tambi�n permite filtrado por filas o columnas.
+	 * formato. También permite filtrado por filas o columnas.
 	 * 
 	 * @param sourceFormat
 	 *            formato de conjunto de datos
@@ -163,16 +169,18 @@ public class GenericProcesses {
 	 * @param label
 	 *            clase
 	 * @param deletedRows
-	 *            filas que ser�n borradas
+	 *            filas que serán borradas
 	 * @param filterCondition
-	 *            condici�n para el filtrado por filas
+	 *            condición para el filtrado por filas
 	 * @param attributeSelection
-	 *            condici�n para el filtrado por columnas
+	 *            condición para el filtrado por columnas
 	 * @return process proceso
 	 */
 	public static Process getDecisionTreeToRules(String sourceFormat, String sourcePath,
 			String label, SortedSet<Integer> deletedRows, String filterCondition,
-			List<String> attributeSelection) {
+			List<String> attributeSelection, String criterion, String minimalSizeForSplit,
+			String minimalLeafSize, String minimalGain, String maximalDepth, String confidence,
+			String numberOfPrepruningAlt, String noPrepruning, String noPruning) {
 		Process process = null;
 		try {
 			process = Preprocessing.getPreprocessedData(sourcePath, deletedRows, filterCondition,
@@ -187,8 +195,10 @@ public class GenericProcesses {
 			Tree2RuleConverter treeToRuleOperator = OperatorService
 					.createOperator(Tree2RuleConverter.class);
 			/* Decision tree operator */
-			DecisionTreeLearner decisionTreeOperator = OperatorService
-					.createOperator(DecisionTreeLearner.class);
+			DecisionTreeLearner decisionTreeOperator = getDecisionTreeLearnerOperator(criterion,
+					minimalSizeForSplit, minimalLeafSize, minimalGain, maximalDepth, confidence,
+					numberOfPrepruningAlt, noPrepruning, noPruning);
+			// Adding operators
 			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
 			process.getRootOperator().getSubprocess(0).addOperator(treeToRuleOperator);
 			treeToRuleOperator.addOperator(decisionTreeOperator, 0);
@@ -206,9 +216,143 @@ public class GenericProcesses {
 		} catch (OperatorCreationException e) {
 			log.error("No ha sido posible crear el proceso para usar el algoritmo Subgroup Discovery");
 		} catch (RoisinException e) {
-			log.error("Error en la obtenci�n del proceso para el algoritmo Subgroup Discovery => "
+			log.error("Error en la obtención del proceso para el algoritmo Subgroup Discovery => "
 					+ e);
 		}
 		return process;
+	}
+
+	/**
+	 * Este método devuelve el operador RuleLearner (Ripper) según los
+	 * parámetros indicados.
+	 * 
+	 * @param criterion
+	 * @param sampleRatio
+	 * @param pureness
+	 * @param minimalPruneBenefit
+	 * @return
+	 * @throws OperatorCreationException
+	 */
+	public static RuleLearner getRuleLearnerOperator(String criterion, String sampleRatio,
+			String pureness, String minimalPruneBenefit) throws OperatorCreationException {
+		RuleLearner ruleInductionOperator = OperatorService.createOperator(RuleLearner.class);
+		// Configuración de rule induction operator
+		// Sample ratio
+		sampleRatio = StringUtils.isBlank(sampleRatio) ? "1.0" : sampleRatio;
+		ruleInductionOperator.setParameter(Constants.RIPPER_SAMPLE_RATIO, sampleRatio);
+		// Pureness
+		if (!StringUtils.isBlank(pureness)) {
+			ruleInductionOperator.setParameter(Constants.RIPPER_PURENESS, pureness);
+		}
+		// Criterion
+		if (!StringUtils.isBlank(criterion)) {
+			ruleInductionOperator.setParameter(Constants.RIPPER_CRITERION, criterion);
+		}
+		// Minimal Prune Benefit
+		if (!StringUtils.isBlank(minimalPruneBenefit)) {
+			ruleInductionOperator.setParameter(Constants.RIPPER_MINIMAL_PRUNE_BENEFIT,
+					minimalPruneBenefit);
+		}
+		return ruleInductionOperator;
+	}
+
+	public static SubgroupDiscovery getSubgroupDiscoveryOperator(String mode,
+			String utilityFunction, String minUtility, String kBestRules, String maxDepth,
+			String minCoverage) throws OperatorCreationException {
+		SubgroupDiscovery subgroupDiscoveryOperator = OperatorService
+				.createOperator(SubgroupDiscovery.class);
+		/* Subgroup discovery configuration */
+		// Mode
+		if (!StringUtils.isBlank(mode)) {
+			subgroupDiscoveryOperator.setParameter(Constants.SUBGROUP_MODE, mode);
+		}
+		// Utility Function
+		if (!StringUtils.isBlank(utilityFunction)) {
+			subgroupDiscoveryOperator.setParameter(Constants.SUBGROUP_UTILITY_FUNCTION,
+					utilityFunction);
+		}
+		// Min utility
+		if (!StringUtils.isBlank(minUtility)) {
+			subgroupDiscoveryOperator.setParameter(Constants.SUBGROUP_MIN_UTILITY, minUtility);
+		}
+		// K best rule
+		if (!StringUtils.isBlank(mode)) {
+			subgroupDiscoveryOperator.setParameter(Constants.SUBGROUP_K_BEST_RULES, kBestRules);
+		}
+		// Max Depth
+		if (!StringUtils.isBlank(maxDepth)) {
+			subgroupDiscoveryOperator.setParameter(Constants.SUBGROUP_MAX_DEPTH, maxDepth);
+		}
+		// Min Coverage
+		if (!StringUtils.isBlank(minCoverage)) {
+			subgroupDiscoveryOperator.setParameter(Constants.SUBGROUP_MIN_COVERAGE, minCoverage);
+		}
+		return subgroupDiscoveryOperator;
+	}
+
+	/**
+	 * Este método devuelve el operador DecisionTreeLearner configurado. Se
+	 * comprueba para todos los casos si el parámetro es blanco o nulo.
+	 * 
+	 * @param criterion
+	 * @param minimalSizeForSplit
+	 * @param minimalLeafSize
+	 * @param minimalGain
+	 * @param maximalDepth
+	 * @param confidence
+	 * @param numberOfPrepruningAlt
+	 * @param noPrepruning
+	 * @param noPruning
+	 * @return
+	 * @throws OperatorCreationException
+	 */
+	public static DecisionTreeLearner getDecisionTreeLearnerOperator(String criterion,
+			String minimalSizeForSplit, String minimalLeafSize, String minimalGain,
+			String maximalDepth, String confidence, String numberOfPrepruningAlt,
+			String noPrepruning, String noPruning) throws OperatorCreationException {
+		DecisionTreeLearner decisionTreeOperator = OperatorService
+				.createOperator(DecisionTreeLearner.class);
+		/* Configuración de DecisionTreeLearner */
+		// Criterion
+		if (!StringUtils.isBlank(criterion)) {
+			decisionTreeOperator.setParameter(Constants.DECISION_TREE_CRITERION, criterion);
+		}
+		// Minimal Size for Split
+		if (!StringUtils.isBlank(minimalSizeForSplit)) {
+			decisionTreeOperator.setParameter(Constants.DECISION_TREE_MINIMAL_SIZE_FOR_SPLIT,
+					minimalSizeForSplit);
+		}
+		// Minimal Leaf Size
+		if (!StringUtils.isBlank(minimalLeafSize)) {
+			decisionTreeOperator.setParameter(Constants.DECISION_TREE_MINIMAL_LEAF_SIZE,
+					minimalLeafSize);
+		}
+		// Minimal gain
+		if (!StringUtils.isBlank(minimalGain)) {
+			decisionTreeOperator.setParameter(Constants.DECISION_TREE_MINIMAL_GAIN, minimalGain);
+		}
+		// Maximal Depth
+		if (!StringUtils.isBlank(maximalDepth)) {
+			decisionTreeOperator.setParameter(Constants.DECISION_TREE_MAXIMAL_DEPTH, maximalDepth);
+		}
+		// Confidence
+		if (!StringUtils.isBlank(confidence)) {
+			decisionTreeOperator.setParameter(Constants.DECISION_TREE_CONFIDENCE, confidence);
+		}
+		// Number of prepuning alternatives
+		if (!StringUtils.isBlank(numberOfPrepruningAlt)) {
+			decisionTreeOperator.setParameter(
+					Constants.DECISION_TREE_NUMBER_OF_PREPRUNING_ALTERNATIVES,
+					numberOfPrepruningAlt);
+		}
+		// No prepruning
+		if (!StringUtils.isBlank(noPrepruning)) {
+			decisionTreeOperator.setParameter(Constants.DECISION_TREE_NO_PREPRUNING, noPrepruning);
+		}
+		// No pruning
+		if (!StringUtils.isBlank(noPruning)) {
+			decisionTreeOperator.setParameter(Constants.DECISION_TREE_NO_PRUNING, noPruning);
+		}
+		return decisionTreeOperator;
 	}
 }
