@@ -115,8 +115,8 @@ public class GenericProcesses {
 	public static Process getSubgroupDiscoveryDiscretization(String sourceFormat,
 			String sourcePath, String label, SortedSet<Integer> deletedRows,
 			String filterCondition, List<String> attributeSelection, String mode,
-			String utilityFunction, String minUtility, String kBestRules, String maxDepth,
-			String minCoverage) {
+			String utilityFunction, String minUtility, String kBestRules, String ruleGeneration,
+			String maxDepth, String minCoverage) {
 		Process process = null;
 		try {
 			process = Preprocessing.getPreprocessedData(sourcePath, deletedRows, filterCondition,
@@ -132,7 +132,7 @@ public class GenericProcesses {
 					.createOperator(BinDiscretization.class);
 			/* Subgroup discovery */
 			SubgroupDiscovery subgroupDiscoveryOperator = getSubgroupDiscoveryOperator(mode,
-					utilityFunction, minUtility, kBestRules, maxDepth, minCoverage);
+					utilityFunction, minUtility, kBestRules, ruleGeneration, maxDepth, minCoverage);
 			// Adding operators
 			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
 			process.getRootOperator().getSubprocess(0).addOperator(discretizationOperator);
@@ -201,7 +201,7 @@ public class GenericProcesses {
 			// Adding operators
 			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
 			process.getRootOperator().getSubprocess(0).addOperator(treeToRuleOperator);
-			treeToRuleOperator.addOperator(decisionTreeOperator, 0);
+			treeToRuleOperator.getSubprocess(0).addOperator(decisionTreeOperator, 0);
 			// Es obligatorio devolver el conjunto de datos de ejemplo como un
 			// resultado.
 			treeToRuleOperator
@@ -257,8 +257,8 @@ public class GenericProcesses {
 	}
 
 	public static SubgroupDiscovery getSubgroupDiscoveryOperator(String mode,
-			String utilityFunction, String minUtility, String kBestRules, String maxDepth,
-			String minCoverage) throws OperatorCreationException {
+			String utilityFunction, String minUtility, String kBestRules, String ruleGeneration,
+			String maxDepth, String minCoverage) throws OperatorCreationException {
 		SubgroupDiscovery subgroupDiscoveryOperator = OperatorService
 				.createOperator(SubgroupDiscovery.class);
 		/* Subgroup discovery configuration */
@@ -274,6 +274,11 @@ public class GenericProcesses {
 		// Min utility
 		if (!StringUtils.isBlank(minUtility)) {
 			subgroupDiscoveryOperator.setParameter(Constants.SUBGROUP_MIN_UTILITY, minUtility);
+		}
+		// Rule Generation
+		if (!StringUtils.isBlank(ruleGeneration)) {
+			subgroupDiscoveryOperator.setParameter(Constants.SUBGROUP_RULE_GENERATION,
+					ruleGeneration);
 		}
 		// K best rule
 		if (!StringUtils.isBlank(mode)) {
