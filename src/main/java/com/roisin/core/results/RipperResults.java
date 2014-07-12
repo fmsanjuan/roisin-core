@@ -15,10 +15,10 @@ import com.rapidminer.operator.learner.tree.SplitCondition;
 import exception.RoisinRuleException;
 
 /**
- * Implementaci—n de todos los mŽtodos necesarios para la obtenci—n de
+ * Implementaciï¿½n de todos los mï¿½todos necesarios para la obtenciï¿½n de
  * resultados a partir del algoritmo Ripper.
  * 
- * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * @author Fï¿½lix Miguel Sanjuï¿½n Segovia <fmsanse@gmail.com>
  * 
  */
 public class RipperResults extends AbstractRoisinResults {
@@ -29,12 +29,12 @@ public class RipperResults extends AbstractRoisinResults {
 	private ExampleSet exampleSet;
 
 	/**
-	 * Informaci—n sobre la clase.
+	 * Informaciï¿½n sobre la clase.
 	 */
 	private Attribute label;
 
 	/**
-	 * Constructor pœblico.
+	 * Constructor pÃºblico.
 	 * 
 	 * @param ruleModel
 	 * @param exampleSet
@@ -45,7 +45,7 @@ public class RipperResults extends AbstractRoisinResults {
 		this.label = ruleModel.getLabel();
 		// Populate rules.
 		try {
-			// Se le resta uno al tama–o para eliminar la œltima regla.
+			// Se le resta uno al tamaÃ±o para eliminar la Ãºltima regla.
 			for (int i = 0; i < ruleModel.getRules().size() - 1; i++) {
 				Rule rule = ruleModel.getRules().get(i);
 				rules.add(new RoisinRuleImpl(getPremise(rule), rule.getLabel(), getPrecision(rule),
@@ -56,10 +56,12 @@ public class RipperResults extends AbstractRoisinResults {
 		}
 		// Solapamiento
 		applyOverlappingProcedure();
+		// CÃ¡lculo del Ã¡rea bajo la curva
+		this.auc = calculateRulesAuc();
 	}
 
 	/**
-	 * Este mŽtodo devuelve una cadena que contiene todas las condiciones de la
+	 * Este mï¿½todo devuelve una cadena que contiene todas las condiciones de la
 	 * regla.
 	 * 
 	 * @param rule
@@ -79,12 +81,12 @@ public class RipperResults extends AbstractRoisinResults {
 	}
 
 	/**
-	 * Este mŽtodo devuelve el nœmero total de aciertos de la regla que se pasa
-	 * como par‡metro.
+	 * Este mï¿½todo devuelve el nï¿½mero total de aciertos de la regla que se pasa
+	 * como parï¿½metro.
 	 * 
 	 * @param rule
 	 *            regla
-	 * @return aciertos nœmero total de aciertos
+	 * @return aciertos nï¿½mero total de aciertos
 	 */
 	private int getAciertos(Rule rule) {
 		ExampleSet coveredExamples = rule.getCovered(this.exampleSet);
@@ -98,7 +100,7 @@ public class RipperResults extends AbstractRoisinResults {
 	}
 
 	/**
-	 * Devuelve la precisi—n de la regla que se pasa como par‡metro.
+	 * Devuelve la precisiï¿½n de la regla que se pasa como parï¿½metro.
 	 * 
 	 * @param rule
 	 *            regla
@@ -109,7 +111,7 @@ public class RipperResults extends AbstractRoisinResults {
 	}
 
 	/**
-	 * Devuelve el soporte de la regla que se pasa como par‡metro.
+	 * Devuelve el soporte de la regla que se pasa como parï¿½metro.
 	 * 
 	 * @param rule
 	 *            regla
@@ -127,7 +129,7 @@ public class RipperResults extends AbstractRoisinResults {
 
 	/**
 	 * Devuelve un array con cuatro enteros cuyos valores indican los tp, tn, fp
-	 * y fn de la regla que se pasa como par‡metro.
+	 * y fn de la regla que se pasa como parï¿½metro.
 	 * 
 	 * @param rule
 	 *            regla
@@ -160,8 +162,8 @@ public class RipperResults extends AbstractRoisinResults {
 
 	/**
 	 * Devuelve una lista que contiene todos los ejemplos cubiertos por la
-	 * regla. Para la creaci—n de esta lista se tiene en cuenta si el ejemplo ya
-	 * ha sido cubierto por otra regla. En tal caso, no se a–ade (solapamiento).
+	 * regla. Para la creaciï¿½n de esta lista se tiene en cuenta si el ejemplo ya
+	 * ha sido cubierto por otra regla. En tal caso, no se aï¿½ade (solapamiento).
 	 * 
 	 * @param rule
 	 *            regla

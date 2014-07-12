@@ -12,4 +12,8 @@ public class Utils {
 		return b - a == 1;
 	}
 
+	public static double truncateValue(double value) {
+		return Math.floor(value * Constants.TRUNCATE_VALUE) / Constants.TRUNCATE_VALUE;
+	}
+
 }

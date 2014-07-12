@@ -85,4 +85,6 @@ public interface Constants {
 
 	String DOT_SYMBOL = ".";
 
+	int TRUNCATE_VALUE = 1000;
+
 }
