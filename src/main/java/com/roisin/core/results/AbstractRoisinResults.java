@@ -105,6 +105,8 @@ public abstract class AbstractRoisinResults implements RoisinResults {
 			}
 			ruleCounter++;
 		}
+		auc += Math.abs((1 - prevFpr) * prevTpr);
+		auc += Math.abs(((1 - prevFpr) * (1 - prevTpr)) / 2.0);
 		return auc;
 	}
 
