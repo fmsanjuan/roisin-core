@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.rapidminer.example.table.DataRow;
-import com.roisin.core.utils.FalsePositiveRateComparator;
+import com.roisin.core.utils.RoisinRuleComparator;
 import com.roisin.core.utils.Utils;
 
 /**
@@ -79,7 +79,7 @@ public abstract class AbstractRoisinResults implements RoisinResults {
 	}
 
 	protected double calculateRulesAuc() {
-		SortedSet<RoisinRule> sortedRules = Sets.newTreeSet(new FalsePositiveRateComparator());
+		SortedSet<RoisinRule> sortedRules = Sets.newTreeSet(new RoisinRuleComparator());
 		sortedRules.addAll(this.rules);
 		int ruleCounter = 1;
 		double auc = 0.0;
