@@ -298,6 +298,28 @@ public class Preprocessing {
 	}
 
 	/**
+	 * Este operador devuelve un proceso que lee de un fichero y preprocesa
+	 * (filtra, elimina filas, etc.) la información del mismo y la devuelve en
+	 * un objeto ExampleSet.
+	 * 
+	 * @param inputPath
+	 * @param rowFilter
+	 * @param filterCondition
+	 * @param attributeSelection
+	 * @return
+	 * @throws RoisinException
+	 */
+	public static Process getPreprocessedExampleSet(String inputPath, SortedSet<Integer> rowFilter,
+			String filterCondition, List<String> attributeSelection) throws RoisinException {
+		Process process = getPreprocessedData(inputPath, rowFilter, filterCondition,
+				attributeSelection);
+		// Auto wire connects the last operator to result 1 automatically.
+		process.getRootOperator().getSubprocess(0)
+				.autoWire(CompatibilityLevel.VERSION_5, true, true);
+		return process;
+	}
+
+	/**
 	 * Este método devuelve un proceso que devuelve un ExampleSet a partir de el
 	 * path de un fichero y su correspondiente formato.
 	 * 
