@@ -112,11 +112,11 @@ public class GenericProcesses {
 	 *            condición para el filtrado por columnas
 	 * @return process proceso
 	 */
-	public static Process getSubgroupDiscoveryDiscretization(String sourceFormat,
-			String sourcePath, String label, SortedSet<Integer> deletedRows,
-			String filterCondition, List<String> attributeSelection, String mode,
-			String utilityFunction, String minUtility, String kBestRules, String ruleGeneration,
-			String maxDepth, String minCoverage) {
+	public static Process getSubgroupDiscoveryDiscretization(String sourcePath, String label,
+			SortedSet<Integer> deletedRows, String filterCondition,
+			List<String> attributeSelection, String mode, String utilityFunction,
+			String minUtility, String kBestRules, String ruleGeneration, String maxDepth,
+			String minCoverage) {
 		Process process = null;
 		try {
 			process = Preprocessing.getPreprocessedData(sourcePath, deletedRows, filterCondition,
@@ -176,8 +176,8 @@ public class GenericProcesses {
 	 *            condición para el filtrado por columnas
 	 * @return process proceso
 	 */
-	public static Process getDecisionTreeToRules(String sourceFormat, String sourcePath,
-			String label, SortedSet<Integer> deletedRows, String filterCondition,
+	public static Process getDecisionTreeToRules(String sourcePath, String label,
+			SortedSet<Integer> deletedRows, String filterCondition,
 			List<String> attributeSelection, String criterion, String minimalSizeForSplit,
 			String minimalLeafSize, String minimalGain, String maximalDepth, String confidence,
 			String numberOfPrepruningAlt, String noPrepruning, String noPruning) {
