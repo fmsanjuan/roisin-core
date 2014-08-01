@@ -127,6 +127,7 @@ public class Preprocessing {
 			exampleFilter = OperatorService.createOperator(ExampleFilter.class);
 			exampleFilter.setParameter("condition_class", "attribute_value_filter");
 			exampleFilter.setParameter("parameter_string", filterCondition);
+			exampleFilter.setParameter("invert_filter", "true");
 		} catch (OperatorCreationException e) {
 			log.error("No ha sido posible obtener el operador para filtrar ejemplos del conjunto de datos original");
 		}
