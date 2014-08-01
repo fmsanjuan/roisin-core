@@ -93,7 +93,7 @@ public abstract class AbstractRoisinResults implements RoisinResults {
 				auc += Math.abs((((roisinRule.getFalsePositiveRate() - prevFpr) * (roisinRule
 						.getTruePositiveRate() - prevTpr)) / 2.0));
 				// Rect�ngulo
-				auc += Math.abs((roisinRule.getFalsePositiveRate() - prevFpr) * prevFpr);
+				auc += Math.abs((roisinRule.getFalsePositiveRate() - prevFpr) * prevTpr);
 				// Cambiamos el valor de las variables prev
 				prevFpr = roisinRule.getFalsePositiveRate();
 				prevTpr = roisinRule.getTruePositiveRate();
