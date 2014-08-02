@@ -56,7 +56,7 @@ public class GenericProcesses {
 	public static Process getRipper(String sourcePath, String label,
 			SortedSet<Integer> deletedRows, String filterCondition,
 			List<String> attributeSelection, String criterion, String sampleRatio, String pureness,
-			String minimalPruneBenefit) {
+			String minimalPruneBenefit, boolean discretizeLabel) {
 		Process process = null;
 		try {
 			process = Preprocessing.getPreprocessedData(sourcePath, deletedRows, filterCondition,
@@ -70,6 +70,17 @@ public class GenericProcesses {
 			/* Rule Induction */
 			RuleLearner ruleInductionOperator = getRuleLearnerOperator(criterion, sampleRatio,
 					pureness, minimalPruneBenefit);
+
+			if (discretizeLabel) {
+				/* Label Discretization */
+				BinDiscretization discretizationOperator = OperatorService
+						.createOperator(BinDiscretization.class);
+				discretizationOperator.setParameter("attribute_filter_type", "single");
+				discretizationOperator.setParameter("attribute", label);
+				process.getRootOperator().getSubprocess(0).addOperator(discretizationOperator);
+
+			}
+
 			// Se añaden los operadores al proceso
 			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
 			process.getRootOperator().getSubprocess(0).addOperator(ruleInductionOperator);
@@ -134,8 +145,8 @@ public class GenericProcesses {
 			SubgroupDiscovery subgroupDiscoveryOperator = getSubgroupDiscoveryOperator(mode,
 					utilityFunction, minUtility, kBestRules, ruleGeneration, maxDepth, minCoverage);
 			// Adding operators
-			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
 			process.getRootOperator().getSubprocess(0).addOperator(discretizationOperator);
+			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
 			process.getRootOperator().getSubprocess(0).addOperator(subgroupDiscoveryOperator);
 			// Es obligatorio devolver el conjunto de datos de ejemplo como un
 			// resultado.
@@ -180,7 +191,8 @@ public class GenericProcesses {
 			SortedSet<Integer> deletedRows, String filterCondition,
 			List<String> attributeSelection, String criterion, String minimalSizeForSplit,
 			String minimalLeafSize, String minimalGain, String maximalDepth, String confidence,
-			String numberOfPrepruningAlt, String noPrepruning, String noPruning) {
+			String numberOfPrepruningAlt, String noPrepruning, String noPruning,
+			boolean discretizeLabel) {
 		Process process = null;
 		try {
 			process = Preprocessing.getPreprocessedData(sourcePath, deletedRows, filterCondition,
@@ -198,6 +210,16 @@ public class GenericProcesses {
 			DecisionTreeLearner decisionTreeOperator = getDecisionTreeLearnerOperator(criterion,
 					minimalSizeForSplit, minimalLeafSize, minimalGain, maximalDepth, confidence,
 					numberOfPrepruningAlt, noPrepruning, noPruning);
+
+			if (discretizeLabel) {
+				/* Label Discretization */
+				BinDiscretization discretizationOperator = OperatorService
+						.createOperator(BinDiscretization.class);
+				discretizationOperator.setParameter("attribute_filter_type", "single");
+				discretizationOperator.setParameter("attribute", label);
+				process.getRootOperator().getSubprocess(0).addOperator(discretizationOperator);
+
+			}
 			// Adding operators
 			process.getRootOperator().getSubprocess(0).addOperator(setRoleOperator);
 			process.getRootOperator().getSubprocess(0).addOperator(treeToRuleOperator);
