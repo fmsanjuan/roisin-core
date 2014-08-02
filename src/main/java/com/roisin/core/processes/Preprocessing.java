@@ -115,7 +115,8 @@ public class Preprocessing {
 
 	/**
 	 * Este método devuelve un operador que realiza un filtrado de registros del
-	 * conjunto de datos.
+	 * conjunto de datos devolviendo aquellos ejemplos que no cumplen con la
+	 * condición que se pasa como parámetro.
 	 * 
 	 * @param filterCondition
 	 *            condición para el filtrado
@@ -128,6 +129,28 @@ public class Preprocessing {
 			exampleFilter.setParameter("condition_class", "attribute_value_filter");
 			exampleFilter.setParameter("parameter_string", filterCondition);
 			exampleFilter.setParameter("invert_filter", "true");
+		} catch (OperatorCreationException e) {
+			log.error("No ha sido posible obtener el operador para filtrar ejemplos del conjunto de datos original");
+		}
+		return exampleFilter;
+	}
+
+	/**
+	 * Este método devuelve un operador que realiza un filtrado de registros del
+	 * conjunto de datos devolviendo aquellos recursos que cumplen la condición
+	 * que se pasa como parámetro.
+	 * 
+	 * @param filterCondition
+	 *            condición para el filtrado
+	 * @return
+	 */
+	public static Operator getExampleFilterNoInverter(String filterCondition) {
+		ExampleFilter exampleFilter = null;
+		try {
+			exampleFilter = OperatorService.createOperator(ExampleFilter.class);
+			exampleFilter.setParameter("condition_class", "attribute_value_filter");
+			exampleFilter.setParameter("parameter_string", filterCondition);
+			exampleFilter.setParameter("invert_filter", "false");
 		} catch (OperatorCreationException e) {
 			log.error("No ha sido posible obtener el operador para filtrar ejemplos del conjunto de datos original");
 		}
@@ -332,6 +355,31 @@ public class Preprocessing {
 		Process process = new Process();
 		Operator reader = getReader(path);
 		process.getRootOperator().getSubprocess(0).addOperator(reader);
+		process.getRootOperator().getSubprocess(0)
+				.autoWire(CompatibilityLevel.VERSION_5, true, true);
+		return process;
+	}
+
+	/**
+	 * Este método devuelve un proceso que devuelve un conjunto de datos de
+	 * ejemplo que cumple una condición concreta.
+	 * 
+	 * @param path
+	 * @param rowFilter
+	 * @param filterCondition
+	 * @param attributeSelection
+	 * @return
+	 * @throws RoisinException
+	 */
+	public static Process getConditionFilteredData(String path, String filterCondition) {
+		Process process = new Process();
+		Operator reader = Preprocessing.getReader(path);
+		process.getRootOperator().getSubprocess(0).addOperator(reader);
+		// Filtrado de filas mediante condición
+		if (!StringUtils.isBlank(filterCondition)) {
+			process.getRootOperator().getSubprocess(0)
+					.addOperator(Preprocessing.getExampleFilterNoInverter(filterCondition));
+		}
 		process.getRootOperator().getSubprocess(0)
 				.autoWire(CompatibilityLevel.VERSION_5, true, true);
 		return process;
