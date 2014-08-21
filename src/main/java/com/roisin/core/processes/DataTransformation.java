@@ -61,7 +61,7 @@ public class DataTransformation {
 	}
 
 	/**
-	 * Este m�todo devuelve el proceso que convierte un fichero arff en excel.
+	 * Este método devuelve el proceso que convierte un fichero arff en xls.
 	 * 
 	 * @param input
 	 *            path del archivo origen
@@ -69,7 +69,7 @@ public class DataTransformation {
 	 *            path del archivo destino
 	 * @return process proceso
 	 */
-	public static Process convertArffToExcel(String input, String output) {
+	public static Process convertArffToXls(String input, String output) {
 		Process process = new Process();
 		try {
 			// Operador para la lectura del fichero arff
@@ -79,6 +79,8 @@ public class DataTransformation {
 			ExcelExampleSetWriter excelWriter = OperatorService
 					.createOperator(ExcelExampleSetWriter.class);
 			excelWriter.setParameter(ExcelExampleSetWriter.PARAMETER_EXCEL_FILE, output);
+			excelWriter.setParameter(ExcelExampleSetWriter.PARAMETER_FILE_FORMAT,
+					ExcelExampleSetWriter.FILE_FORMAT_XLS);
 			// Adding operators to process
 			process.getRootOperator().getSubprocess(0).addOperator(arffExample);
 			process.getRootOperator().getSubprocess(0).addOperator(excelWriter);
@@ -92,7 +94,7 @@ public class DataTransformation {
 	}
 
 	/**
-	 * Este m�todo devuelve el proceso que convierte un fichero xrff en excel.
+	 * Este método devuelve el proceso que convierte un fichero arff en excel.
 	 * 
 	 * @param input
 	 *            path del archivo origen
@@ -100,7 +102,40 @@ public class DataTransformation {
 	 *            path del archivo destino
 	 * @return process proceso
 	 */
-	public static Process convertXrffToExcel(String input, String output) {
+	public static Process convertArffToXlsx(String input, String output) {
+		Process process = new Process();
+		try {
+			// Operador para la lectura del fichero arff
+			ArffExampleSource arffExample = OperatorService.createOperator(ArffExampleSource.class);
+			arffExample.setParameter(ArffExampleSource.PARAMETER_DATA_FILE, input);
+			// Operador para la escritura del fichero excel
+			ExcelExampleSetWriter excelWriter = OperatorService
+					.createOperator(ExcelExampleSetWriter.class);
+			excelWriter.setParameter(ExcelExampleSetWriter.PARAMETER_EXCEL_FILE, output);
+			excelWriter.setParameter(ExcelExampleSetWriter.PARAMETER_FILE_FORMAT,
+					ExcelExampleSetWriter.FILE_FORMAT_XLSX);
+			// Adding operators to process
+			process.getRootOperator().getSubprocess(0).addOperator(arffExample);
+			process.getRootOperator().getSubprocess(0).addOperator(excelWriter);
+			// Operator connection
+			process.getRootOperator().getSubprocess(0)
+					.autoWire(CompatibilityLevel.VERSION_5, true, true);
+		} catch (OperatorCreationException e) {
+			log.error("No ha sido posible transformar el fichero arff en excel");
+		}
+		return process;
+	}
+
+	/**
+	 * Este método devuelve el proceso que convierte un fichero xrff en xls.
+	 * 
+	 * @param input
+	 *            path del archivo origen
+	 * @param output
+	 *            path del archivo destino
+	 * @return process proceso
+	 */
+	public static Process convertXrffToXls(String input, String output) {
 		Process process = new Process();
 		try {
 			// Operador para la lectura del fichero xrff
@@ -110,6 +145,41 @@ public class DataTransformation {
 			ExcelExampleSetWriter excelWriter = OperatorService
 					.createOperator(ExcelExampleSetWriter.class);
 			excelWriter.setParameter(ExcelExampleSetWriter.PARAMETER_EXCEL_FILE, output);
+			excelWriter.setParameter(ExcelExampleSetWriter.PARAMETER_FILE_FORMAT,
+					ExcelExampleSetWriter.FILE_FORMAT_XLS);
+			// Adding operators to process
+			process.getRootOperator().getSubprocess(0).addOperator(xrffExample);
+			process.getRootOperator().getSubprocess(0).addOperator(excelWriter);
+			// Operator connection
+			process.getRootOperator().getSubprocess(0)
+					.autoWire(CompatibilityLevel.VERSION_5, true, true);
+		} catch (OperatorCreationException e) {
+			log.error("No ha sido posible transformar el fichero xrff en excel");
+		}
+		return process;
+	}
+
+	/**
+	 * Este método devuelve el proceso que convierte un fichero xrff en xlsx.
+	 * 
+	 * @param input
+	 *            path del archivo origen
+	 * @param output
+	 *            path del archivo destino
+	 * @return process proceso
+	 */
+	public static Process convertXrffToXlsx(String input, String output) {
+		Process process = new Process();
+		try {
+			// Operador para la lectura del fichero xrff
+			XrffExampleSource xrffExample = OperatorService.createOperator(XrffExampleSource.class);
+			xrffExample.setParameter(XrffExampleSource.PARAMETER_DATA_FILE, input);
+			// Operador para la escritura del fichero excel
+			ExcelExampleSetWriter excelWriter = OperatorService
+					.createOperator(ExcelExampleSetWriter.class);
+			excelWriter.setParameter(ExcelExampleSetWriter.PARAMETER_EXCEL_FILE, output);
+			excelWriter.setParameter(ExcelExampleSetWriter.PARAMETER_FILE_FORMAT,
+					ExcelExampleSetWriter.FILE_FORMAT_XLSX);
 			// Adding operators to process
 			process.getRootOperator().getSubprocess(0).addOperator(xrffExample);
 			process.getRootOperator().getSubprocess(0).addOperator(excelWriter);
@@ -185,7 +255,7 @@ public class DataTransformation {
 	}
 
 	/**
-	 * Este m�todo devuelve el proceso que convierte un fichero csv en excel.
+	 * Este m�todo devuelve el proceso que convierte un fichero csv en xls.
 	 * 
 	 * @param input
 	 *            path del archivo origen
@@ -193,7 +263,7 @@ public class DataTransformation {
 	 *            path del archivo destino
 	 * @return process proceso
 	 */
-	public static Process convertCsvToExcel(String input, String output) {
+	public static Process convertCsvToXls(String input, String output) {
 		Process process = new Process();
 		try {
 			// Getting CSV file
@@ -203,6 +273,41 @@ public class DataTransformation {
 			ExcelExampleSetWriter excelWriter = OperatorService
 					.createOperator(ExcelExampleSetWriter.class);
 			excelWriter.setParameter(ExcelExampleSetWriter.PARAMETER_EXCEL_FILE, output);
+			excelWriter.setParameter(ExcelExampleSetWriter.PARAMETER_FILE_FORMAT,
+					ExcelExampleSetWriter.FILE_FORMAT_XLS);
+			// Adding operators to process
+			process.getRootOperator().getSubprocess(0).addOperator(csvFile);
+			process.getRootOperator().getSubprocess(0).addOperator(excelWriter);
+			// Operator connection
+			process.getRootOperator().getSubprocess(0)
+					.autoWire(CompatibilityLevel.VERSION_5, true, true);
+		} catch (OperatorCreationException e) {
+			log.error("No ha sido posible transformar el fichero csv en excel" + e);
+		}
+		return process;
+	}
+
+	/**
+	 * Este método devuelve el proceso que convierte un fichero csv en xlsx.
+	 * 
+	 * @param input
+	 *            path del archivo origen
+	 * @param output
+	 *            path del archivo destino
+	 * @return process proceso
+	 */
+	public static Process convertCsvToXlsx(String input, String output) {
+		Process process = new Process();
+		try {
+			// Getting CSV file
+			CSVExampleSource csvFile = OperatorService.createOperator(CSVExampleSource.class);
+			csvFile.setParameter(CSVExampleSource.PARAMETER_CSV_FILE, input);
+			// Operador para la escritura del fichero excel
+			ExcelExampleSetWriter excelWriter = OperatorService
+					.createOperator(ExcelExampleSetWriter.class);
+			excelWriter.setParameter(ExcelExampleSetWriter.PARAMETER_EXCEL_FILE, output);
+			excelWriter.setParameter(ExcelExampleSetWriter.PARAMETER_FILE_FORMAT,
+					ExcelExampleSetWriter.FILE_FORMAT_XLSX);
 			// Adding operators to process
 			process.getRootOperator().getSubprocess(0).addOperator(csvFile);
 			process.getRootOperator().getSubprocess(0).addOperator(excelWriter);
