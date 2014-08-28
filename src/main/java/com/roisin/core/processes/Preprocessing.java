@@ -5,15 +5,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.rapidminer.Process;
 import com.rapidminer.operator.Operator;
 import com.rapidminer.operator.OperatorCreationException;
+import com.rapidminer.operator.io.ArffExampleSetWriter;
 import com.rapidminer.operator.io.ArffExampleSource;
+import com.rapidminer.operator.io.CSVExampleSetWriter;
+import com.rapidminer.operator.io.ExcelExampleSetWriter;
+import com.rapidminer.operator.io.XrffExampleSetWriter;
 import com.rapidminer.operator.io.XrffExampleSource;
 import com.rapidminer.operator.nio.CSVExampleSource;
 import com.rapidminer.operator.nio.ExcelExampleSource;
+import com.rapidminer.operator.ports.metadata.CompatibilityLevel;
 import com.rapidminer.operator.preprocessing.filter.ExampleFilter;
 import com.rapidminer.operator.preprocessing.filter.ExampleRangeFilter;
 import com.rapidminer.operator.preprocessing.filter.attributes.AttributeFilter;
@@ -23,10 +29,10 @@ import com.roisin.core.utils.Constants;
 import exception.RoisinException;
 
 /**
- * Clase que contiene los m�todos necesarios para llevar a cabo las tareas de
+ * Clase que contiene los métodos necesarios para llevar a cabo las tareas de
  * preprocesamiento de datos.
  * 
- * @author F�lix Miguel Sanju�n Segovia <fmsanse@gmail.com>
+ * @author Félix Miguel Sanjuán Segovia <fmsanse@gmail.com>
  * 
  */
 public class Preprocessing {
@@ -37,8 +43,8 @@ public class Preprocessing {
 	private static Logger log = Logger.getLogger(Preprocessing.class);
 
 	/**
-	 * Este m�todo devuelve el operador correspondiente a la lectura de datos
-	 * seg�n el formato indicado.
+	 * Este método devuelve el operador correspondiente a la lectura de datos
+	 * según el formato indicado.
 	 * 
 	 * @param format
 	 *            formato del fichero
@@ -46,10 +52,11 @@ public class Preprocessing {
 	 *            ruta en la que se encuentra el fichero
 	 * @return operador
 	 */
-	public static Operator getReader(String format, String path) {
+	public static Operator getReader(String path) {
 		Operator reader = null;
 		try {
-			if (format.equals(Constants.EXCEL_FORMAT)) {
+			String format = StringUtils.substringAfterLast(path, Constants.DOT_SYMBOL);
+			if (format.equals(Constants.EXCEL_FORMAT) || format.equals(Constants.EXCEL_FORMAT_2007)) {
 				reader = OperatorService.createOperator(ExcelExampleSource.class);
 				reader.setParameter(ExcelExampleSource.PARAMETER_EXCEL_FILE, path);
 			} else if (format.equals(Constants.ARFF_FORMAT)) {
@@ -62,20 +69,57 @@ public class Preprocessing {
 				reader = OperatorService.createOperator(CSVExampleSource.class);
 				reader.setParameter(CSVExampleSource.PARAMETER_CSV_FILE, path);
 			} else {
-				throw new IllegalArgumentException("Formato de entrada no v�lido");
+				throw new IllegalArgumentException("Formato de entrada no válido");
 			}
 		} catch (OperatorCreationException e) {
-			log.error("No ha sido posible obtener informaci�n del archivo indicado");
+			log.error("No ha sido posible obtener información del archivo indicado");
 		}
 		return reader;
 	}
 
 	/**
-	 * Este m�todo devuelve un operador que realiza un filtrado de registros del
-	 * conjunto de datos.
+	 * Este método devuelve el operador correspondiente a la escritura de datos
+	 * (ExampleSet) a partir del formato indicado.
+	 * 
+	 * @param format
+	 *            formato del fichero
+	 * @param path
+	 *            ruta donde se guardará el fichero
+	 * @return
+	 */
+	public static Operator getWriter(String path) {
+		Operator writer = null;
+		try {
+			String format = StringUtils.substringAfterLast(path, Constants.DOT_SYMBOL);
+			if (format.equals(Constants.EXCEL_FORMAT) || format.equals(Constants.EXCEL_FORMAT_2007)) {
+				writer = OperatorService.createOperator(ExcelExampleSetWriter.class);
+				writer.setParameter(ExcelExampleSetWriter.PARAMETER_EXCEL_FILE, path);
+				writer.setParameter(ExcelExampleSetWriter.PARAMETER_FILE_FORMAT, format);
+			} else if (format.equals(Constants.ARFF_FORMAT)) {
+				writer = OperatorService.createOperator(ArffExampleSetWriter.class);
+				writer.setParameter(ArffExampleSetWriter.PARAMETER_EXAMPLE_SET_FILE, path);
+			} else if (format.equals(Constants.XRFF_FORMAT)) {
+				writer = OperatorService.createOperator(XrffExampleSetWriter.class);
+				writer.setParameter(XrffExampleSetWriter.PARAMETER_EXAMPLE_SET_FILE, path);
+			} else if (format.equals(Constants.CSV_FORMAT)) {
+				writer = OperatorService.createOperator(CSVExampleSetWriter.class);
+				writer.setParameter(CSVExampleSetWriter.PARAMETER_CSV_FILE, path);
+			} else {
+				throw new IllegalArgumentException("Formato de entrada no válido");
+			}
+		} catch (OperatorCreationException e) {
+			log.error("No ha sido posible obtener información del archivo indicado");
+		}
+		return writer;
+	}
+
+	/**
+	 * Este método devuelve un operador que realiza un filtrado de registros del
+	 * conjunto de datos devolviendo aquellos ejemplos que no cumplen con la
+	 * condición que se pasa como parámetro.
 	 * 
 	 * @param filterCondition
-	 *            condici�n para el filtrado
+	 *            condición para el filtrado
 	 * @return
 	 */
 	public static Operator getExampleFilter(String filterCondition) {
@@ -84,6 +128,7 @@ public class Preprocessing {
 			exampleFilter = OperatorService.createOperator(ExampleFilter.class);
 			exampleFilter.setParameter("condition_class", "attribute_value_filter");
 			exampleFilter.setParameter("parameter_string", filterCondition);
+			exampleFilter.setParameter("invert_filter", "true");
 		} catch (OperatorCreationException e) {
 			log.error("No ha sido posible obtener el operador para filtrar ejemplos del conjunto de datos original");
 		}
@@ -91,7 +136,29 @@ public class Preprocessing {
 	}
 
 	/**
-	 * Este m�todo devuelve un operador que elimina atributos (columnas) del
+	 * Este método devuelve un operador que realiza un filtrado de registros del
+	 * conjunto de datos devolviendo aquellos recursos que cumplen la condición
+	 * que se pasa como parámetro.
+	 * 
+	 * @param filterCondition
+	 *            condición para el filtrado
+	 * @return
+	 */
+	public static Operator getExampleFilterNoInverter(String filterCondition) {
+		ExampleFilter exampleFilter = null;
+		try {
+			exampleFilter = OperatorService.createOperator(ExampleFilter.class);
+			exampleFilter.setParameter("condition_class", "attribute_value_filter");
+			exampleFilter.setParameter("parameter_string", filterCondition);
+			exampleFilter.setParameter("invert_filter", "false");
+		} catch (OperatorCreationException e) {
+			log.error("No ha sido posible obtener el operador para filtrar ejemplos del conjunto de datos original");
+		}
+		return exampleFilter;
+	}
+
+	/**
+	 * Este método devuelve un operador que elimina atributos (columnas) del
 	 * conjunto de datos que va a ser procesado.
 	 * 
 	 * @param seleccion
@@ -120,12 +187,12 @@ public class Preprocessing {
 
 	/**
 	 * Devuelve un operador que realiza un filtrado de conjunto de datos de
-	 * ejemplo a partir del rango pasado como par�metro.
+	 * ejemplo a partir del rango pasado como parámetro.
 	 * 
 	 * @param inicio
 	 *            primera fila del rango
 	 * @param fin
-	 *            �ltima fila del rango
+	 *            última fila del rango
 	 * @return
 	 */
 	public static ExampleRangeFilter getExampleRangeFilter(int inicio, int fin) {
@@ -144,9 +211,9 @@ public class Preprocessing {
 	}
 
 	/**
-	 * Este m�todo devuelve una lista con todos los filtros de ejemplos por
+	 * Este método devuelve una lista con todos los filtros de ejemplos por
 	 * rango necesarios para eliminar las filas que se indican en el conjunto de
-	 * enteros ordenado que se pasa como par�metro.
+	 * enteros ordenado que se pasa como parámetro.
 	 * 
 	 * @param deletedRows
 	 *            filas que se desean eliminar
@@ -160,7 +227,7 @@ public class Preprocessing {
 		if (iterator.hasNext()) {
 			// Marca el inicio del rango en caso de que a y b sean consecutivos.
 			int inicio = -1;
-			// Esta variable es un contador que marca el n�mero de ejemplos
+			// Esta variable es un contador que marca el número de ejemplos
 			// borrados.
 			int ejemplosBorrados = 0;
 			int a = iterator.next();
@@ -168,12 +235,12 @@ public class Preprocessing {
 				int b = iterator.next();
 				inicio = inicio == -1 ? a : inicio;
 				if (b - a > 1) {
-					// Si no son consecutivos, se crea el filtro con el �ltimo
+					// Si no son consecutivos, se crea el filtro con el último
 					// rango hasta a.
 					ExampleRangeFilter rangeFilter = getExampleRangeFilter(inicio
 							- ejemplosBorrados, a - ejemplosBorrados);
 					filters.add(rangeFilter);
-					// Se incrementa el contador con el n�mero de ejemplos que
+					// Se incrementa el contador con el número de ejemplos que
 					// han sido filtrados.
 					ejemplosBorrados += a - inicio + 1;
 					inicio = -1;
@@ -196,15 +263,13 @@ public class Preprocessing {
 	 * @param path
 	 * @param filterCondition
 	 * @param attributeSelection
-	 * @param label
 	 * @return
 	 * @throws RoisinException
 	 */
-	public static Process getPreprocessedData(String format, String path,
-			SortedSet<Integer> rowFilter, String filterCondition, List<String> attributeSelection,
-			String label) throws RoisinException {
+	public static Process getPreprocessedData(String path, SortedSet<Integer> rowFilter,
+			String filterCondition, List<String> attributeSelection) throws RoisinException {
 		Process process = new Process();
-		Operator reader = Preprocessing.getReader(format, path);
+		Operator reader = Preprocessing.getReader(path);
 		process.getRootOperator().getSubprocess(0).addOperator(reader);
 		// Filtrado de filas
 		if (rowFilter != null && !rowFilter.isEmpty()) {
@@ -213,20 +278,110 @@ public class Preprocessing {
 				process.getRootOperator().getSubprocess(0).addOperator(exampleRangeFilter);
 			}
 		}
-		// Filtrado de filas mediante condici�n
-		if (filterCondition != null) {
+		// Filtrado de filas mediante condición
+		if (!StringUtils.isBlank(filterCondition)) {
 			process.getRootOperator().getSubprocess(0)
 					.addOperator(Preprocessing.getExampleFilter(filterCondition));
 		}
 		// Filtrado de columnas
 		if (attributeSelection != null) {
-			if (!attributeSelection.isEmpty() && attributeSelection.contains(label)) {
-				process.getRootOperator().getSubprocess(0)
-						.addOperator(Preprocessing.getAttributeSelection(attributeSelection));
-			} else {
-				throw new RoisinException("Se est� filtrando sin incluir la clase");
-			}
+			// Eliminada validación de clase contenida en atributos
+			// seleccionados para la exportación de datos en un fichero. La
+			// validación se realiza ahora en spring.
+			process.getRootOperator().getSubprocess(0)
+					.addOperator(Preprocessing.getAttributeSelection(attributeSelection));
 		}
+		return process;
+	}
+
+	/**
+	 * Devuelve un proceso que al ejecutarse preprocesa toda la información
+	 * según los parámetros datos en un fichero cuyo formato se pasa como
+	 * parámetro.
+	 * 
+	 * @param inputFormat
+	 * @param inputPath
+	 * @param rowFilter
+	 * @param filterCondition
+	 * @param attributeSelection
+	 * @param outputFormat
+	 * @param outputPath
+	 * @return
+	 * @throws RoisinException
+	 */
+	public static Process getPreprocessedDataFile(String inputPath, SortedSet<Integer> rowFilter,
+			String filterCondition, List<String> attributeSelection, String outputPath)
+			throws RoisinException {
+		Process process = getPreprocessedData(inputPath, rowFilter, filterCondition,
+				attributeSelection);
+		process.getRootOperator().getSubprocess(0).addOperator(getWriter(outputPath));
+		// Auto wire connects the last operator to result 1 automatically.
+		process.getRootOperator().getSubprocess(0)
+				.autoWire(CompatibilityLevel.VERSION_5, true, true);
+		return process;
+	}
+
+	/**
+	 * Este operador devuelve un proceso que lee de un fichero y preprocesa
+	 * (filtra, elimina filas, etc.) la información del mismo y la devuelve en
+	 * un objeto ExampleSet.
+	 * 
+	 * @param inputPath
+	 * @param rowFilter
+	 * @param filterCondition
+	 * @param attributeSelection
+	 * @return
+	 * @throws RoisinException
+	 */
+	public static Process getPreprocessedExampleSet(String inputPath, SortedSet<Integer> rowFilter,
+			String filterCondition, List<String> attributeSelection) throws RoisinException {
+		Process process = getPreprocessedData(inputPath, rowFilter, filterCondition,
+				attributeSelection);
+		// Auto wire connects the last operator to result 1 automatically.
+		process.getRootOperator().getSubprocess(0)
+				.autoWire(CompatibilityLevel.VERSION_5, true, true);
+		return process;
+	}
+
+	/**
+	 * Este método devuelve un proceso que devuelve un ExampleSet a partir de el
+	 * path de un fichero y su correspondiente formato.
+	 * 
+	 * @param format
+	 * @param path
+	 * @return
+	 */
+	public static Process getExampleSetFromFileProcess(String format, String path) {
+		Process process = new Process();
+		Operator reader = getReader(path);
+		process.getRootOperator().getSubprocess(0).addOperator(reader);
+		process.getRootOperator().getSubprocess(0)
+				.autoWire(CompatibilityLevel.VERSION_5, true, true);
+		return process;
+	}
+
+	/**
+	 * Este método devuelve un proceso que devuelve un conjunto de datos de
+	 * ejemplo que cumple una condición concreta.
+	 * 
+	 * @param path
+	 * @param rowFilter
+	 * @param filterCondition
+	 * @param attributeSelection
+	 * @return
+	 * @throws RoisinException
+	 */
+	public static Process getConditionFilteredData(String path, String filterCondition) {
+		Process process = new Process();
+		Operator reader = Preprocessing.getReader(path);
+		process.getRootOperator().getSubprocess(0).addOperator(reader);
+		// Filtrado de filas mediante condición
+		if (!StringUtils.isBlank(filterCondition)) {
+			process.getRootOperator().getSubprocess(0)
+					.addOperator(Preprocessing.getExampleFilterNoInverter(filterCondition));
+		}
+		process.getRootOperator().getSubprocess(0)
+				.autoWire(CompatibilityLevel.VERSION_5, true, true);
 		return process;
 	}
 }

@@ -7,10 +7,10 @@ import com.rapidminer.example.Example;
 import com.rapidminer.example.table.DataRow;
 
 /**
- * Interfaz para el tipo de dato RoisinRule, que se encargar‡ de recoger
- * aquellos datos necesarios para la aplicaci—n.
+ * Interfaz para el tipo de dato RoisinRule, que se encargarï¿½ de recoger
+ * aquellos datos necesarios para la aplicaciï¿½n.
  * 
- * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * @author Fï¿½lix Miguel Sanjuï¿½n Segovia <fmsanse@gmail.com>
  * 
  */
 public interface RoisinRule {
@@ -30,9 +30,9 @@ public interface RoisinRule {
 	String getConclusion();
 
 	/**
-	 * Devuelve la precisi—n de la regla.
+	 * Devuelve la precisiï¿½n de la regla.
 	 * 
-	 * @return precision precisi—n de la regla
+	 * @return precision precisiï¿½n de la regla
 	 */
 	double getPrecision();
 
@@ -58,30 +58,30 @@ public interface RoisinRule {
 	double getFalsePositiveRate();
 
 	/**
-	 * Devuelve el nœmero total de verdaderos positivos de la regla.
+	 * Devuelve el nï¿½mero total de verdaderos positivos de la regla.
 	 * 
-	 * @return tp nœmero total de tp de la regla
+	 * @return tp nï¿½mero total de tp de la regla
 	 */
 	int getTruePositives();
 
 	/**
-	 * Devuelve el nœmero total de verdaderos negativos de la regla.
+	 * Devuelve el nï¿½mero total de verdaderos negativos de la regla.
 	 * 
-	 * @return tn nœmero total de verdaderos negativos
+	 * @return tn nï¿½mero total de verdaderos negativos
 	 */
 	int getTrueNegatives();
 
 	/**
-	 * Devuelve el nœmero total de falsos positivos de la regla.
+	 * Devuelve el nï¿½mero total de falsos positivos de la regla.
 	 * 
-	 * @return fp nœmero total de falsos positivos
+	 * @return fp nï¿½mero total de falsos positivos
 	 */
 	int getFalsePositives();
 
 	/**
-	 * Devuelve el nœmero total de falsos negativos de la regla.
+	 * Devuelve el nï¿½mero total de falsos negativos de la regla.
 	 * 
-	 * @return fn nœmero total de falsos negativos
+	 * @return fn nï¿½mero total de falsos negativos
 	 */
 	int getFalseNegatives();
 
@@ -101,9 +101,14 @@ public interface RoisinRule {
 	Set<DataRow> getCoveredDataRows();
 
 	/**
-	 * Devuelve el ‡rea bajo la curva de la regla.
+	 * Devuelve el ï¿½rea bajo la curva de la regla.
 	 * 
-	 * @return auc ‡rea bajo la curva
+	 * @return auc ï¿½rea bajo la curva
 	 */
 	double getAuc();
+
+	/**
+	 * Trunca todos los valores de la regla a 2 decimales.
+	 */
+	void truncateValues();
 }

@@ -3,10 +3,10 @@ package com.roisin.core.results;
 import java.util.List;
 
 /**
- * Interfaz del tipo RoisinResults que se encargar‡ del c‡lculo de resultados
+ * Interfaz del tipo RoisinResults que se encargarï¿½ del cï¿½lculo de resultados
  * para Roisin a partir de las reglas obtenidas.
  * 
- * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * @author Fï¿½lix Miguel Sanjuï¿½n Segovia <fmsanse@gmail.com>
  * 
  */
 public interface RoisinResults {
@@ -19,10 +19,16 @@ public interface RoisinResults {
 	List<RoisinRule> getRoisinRules();
 
 	/**
-	 * Devuelve el ‡rea bajo la curva de un conjunto de reglas.
+	 * Devuelve el ï¿½rea bajo la curva de un conjunto de reglas.
 	 * 
-	 * @return auc ‡rea bajo la curva
+	 * @return auc ï¿½rea bajo la curva
 	 */
 	public double getRulesAuc();
+
+	/**
+	 * Este mÃ©todo trunca todos los valores de tipo double de cada regla y del
+	 * Ã¡rea bajo la curva.
+	 */
+	void truncateResults();
 
 }

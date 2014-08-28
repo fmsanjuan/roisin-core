@@ -14,16 +14,16 @@ import com.rapidminer.operator.learner.subgroups.utility.UtilityFunction;
 import exception.RoisinRuleException;
 
 /**
- * Implementaci—n de todos los mŽtodos necesarios para la obtenci—n de
+ * Implementaciï¿½n de todos los mï¿½todos necesarios para la obtenciï¿½n de
  * resultados a partir del algoritmo subgroup discovery.
  * 
- * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * @author Fï¿½lix Miguel Sanjuï¿½n Segovia <fmsanse@gmail.com>
  * 
  */
 public class SubgroupResults extends AbstractRoisinResults {
 
 	/**
-	 * Constructor pœblico.
+	 * Constructor pï¿½blico.
 	 * 
 	 * @param ruleSet
 	 * @param exampleSet
@@ -42,25 +42,27 @@ public class SubgroupResults extends AbstractRoisinResults {
 		}
 		// Solapamiento
 		applyOverlappingProcedure();
+		// CÃ¡lculo del Ã¡rea bajo la curva
+		this.auc = calculateRulesAuc();
 	}
 
 	/**
-	 * Este mŽtodo devuelve el nœmero total de aciertos de la regla que se pasa
-	 * como par‡metro.
+	 * Este mï¿½todo devuelve el nï¿½mero total de aciertos de la regla que se pasa
+	 * como parï¿½metro.
 	 * 
 	 * @param rule
 	 *            regla
-	 * @return aciertos nœmero total de aciertos
+	 * @return aciertos nï¿½mero total de aciertos
 	 */
 	private int getAciertos(Rule rule) {
-		// Si la conclusi—n es positiva, devuelve la frecuencia positiva. En
+		// Si la conclusiï¿½n es positiva, devuelve la frecuencia positiva. En
 		// casos contrario, devuelve la negativa.
 		return rule.getConclusion().getValue() > 0 ? (int) rule.getPositiveWeight() : (int) rule
 				.getNegativeWeight();
 	}
 
 	/**
-	 * Devuelve el antecedente de la regla que se pasa como par‡metro.
+	 * Devuelve el antecedente de la regla que se pasa como parï¿½metro.
 	 * 
 	 * @param rule
 	 *            regla
@@ -71,7 +73,7 @@ public class SubgroupResults extends AbstractRoisinResults {
 	}
 
 	/**
-	 * Devuelve la clase de la regla que se pasa como par‡metro.
+	 * Devuelve la clase de la regla que se pasa como parï¿½metro.
 	 * 
 	 * @param rule
 	 *            regla
@@ -82,7 +84,7 @@ public class SubgroupResults extends AbstractRoisinResults {
 	}
 
 	/**
-	 * Devuelve la precisi—n de la regla que se pasa como par‡metro.
+	 * Devuelve la precisiï¿½n de la regla que se pasa como parï¿½metro.
 	 * 
 	 * @param rule
 	 *            regla
@@ -93,7 +95,7 @@ public class SubgroupResults extends AbstractRoisinResults {
 	}
 
 	/**
-	 * Devuelve el soporte de la regla que se pasa como par‡metro.
+	 * Devuelve el soporte de la regla que se pasa como parï¿½metro.
 	 * 
 	 * @param rule
 	 *            regla
@@ -112,7 +114,7 @@ public class SubgroupResults extends AbstractRoisinResults {
 
 	/**
 	 * Devuelve un array con cuatro enteros cuyos valores indican los tp, tn, fp
-	 * y fn de la regla que se pasa como par‡metro.
+	 * y fn de la regla que se pasa como parï¿½metro.
 	 * 
 	 * @param rule
 	 *            regla
@@ -144,8 +146,8 @@ public class SubgroupResults extends AbstractRoisinResults {
 
 	/**
 	 * Devuelve una lista que contiene todos los ejemplos cubiertos por la
-	 * regla. Para la creaci—n de esta lista se tiene en cuenta si el ejemplo ya
-	 * ha sido cubierto por otra regla. En tal caso, no se a–ade (solapamiento).
+	 * regla. Para la creaciï¿½n de esta lista se tiene en cuenta si el ejemplo ya
+	 * ha sido cubierto por otra regla. En tal caso, no se aï¿½ade (solapamiento).
 	 * 
 	 * @param rule
 	 *            regla

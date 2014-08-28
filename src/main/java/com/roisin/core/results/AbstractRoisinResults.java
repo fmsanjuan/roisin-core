@@ -10,13 +10,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.rapidminer.example.table.DataRow;
-import com.roisin.core.utils.FalsePositiveRateComparator;
+import com.roisin.core.utils.RoisinRuleComparator;
+import com.roisin.core.utils.Utils;
 
 /**
- * Clase abstracta con la implementaci—n comœn a la obtenci—n de resultados para
+ * Clase abstracta con la implementaciï¿½n comï¿½n a la obtenciï¿½n de resultados para
  * Roisin.
  * 
- * @author FŽlix Miguel Sanju‡n Segovia <fmsanse@gmail.com>
+ * @author Fï¿½lix Miguel Sanjuï¿½n Segovia <fmsanse@gmail.com>
  * 
  */
 public abstract class AbstractRoisinResults implements RoisinResults {
@@ -25,6 +26,11 @@ public abstract class AbstractRoisinResults implements RoisinResults {
 	 * Lista de reglas (resultado).
 	 */
 	protected List<RoisinRule> rules;
+
+	/**
+	 * Area under the curve
+	 */
+	protected double auc;
 
 	public AbstractRoisinResults() {
 		this.rules = Lists.newArrayList();
@@ -41,8 +47,8 @@ public abstract class AbstractRoisinResults implements RoisinResults {
 	}
 
 	/**
-	 * Este mŽtodo elimina del listado de reglas aquellas reglas cuyos casos ya
-	 * est‡n contenidos en otras reglas. Es decir, elimina reglas que se solapen
+	 * Este mï¿½todo elimina del listado de reglas aquellas reglas cuyos casos ya
+	 * estï¿½n contenidos en otras reglas. Es decir, elimina reglas que se solapen
 	 * con otras.
 	 */
 	protected void applyOverlappingProcedure() {
@@ -53,7 +59,6 @@ public abstract class AbstractRoisinResults implements RoisinResults {
 		}
 		// Lista de reglas que deben ser eliminadas.
 		Set<RoisinRule> rulesToRemove = Sets.newHashSet();
-		Map<Set<DataRow>, Set<RoisinRule>> equalRules = Maps.newHashMap();
 		// Recorremos todas las reglas
 		for (RoisinRule rule : rules) {
 			// Se comprueba si el conjunto de ejemplos de la regla contiene a
@@ -64,36 +69,45 @@ public abstract class AbstractRoisinResults implements RoisinResults {
 				// ejemplos que contiene otra regla, la metemos en la lista de
 				// reglas a borrar.
 				if (!entry.getKey().equals(rule)
-						&& Sets.newHashSet(rule.getCoveredDataRows()).containsAll(entry.getValue())) {
-					// Si son iguales, hay que quedarse con una de las reglas.
-					if (Sets.newHashSet(rule.getCoveredDataRows()).equals(entry.getValue())) {
-						// De momento las almacenamos en un mapa.
-						if (!equalRules.containsKey(entry.getValue())) {
-							// Si no se hab’a dado el caso antes
-							equalRules.put(entry.getValue(), Sets.newHashSet(rule, entry.getKey()));
-						} else {
-							// Si ya se han encontrado reglas que estŽn
-							// cubiertas por los mismos ejemplos, se a–aden las
-							// dos.
-							equalRules.get(entry.getValue()).add(rule);
-							equalRules.get(entry.getValue()).add(entry.getKey());
-						}
-					} else {
-						// Se a–ade a la lista de candidatas para borrar
-						rulesToRemove.add(entry.getKey());
-					}
+						&& Sets.newHashSet(rule.getCoveredDataRows()).containsAll(entry.getValue())
+						&& !Sets.newHashSet(rule.getCoveredDataRows()).equals(entry.getValue())) {
+					rulesToRemove.add(entry.getKey());
 				}
 			}
 		}
-		// De las reglas que contienen los mismos conjuntos de ejemplos,
-		// escogemos una para eliminar de forma aleatoria.
-		for (Set<RoisinRule> roisinRuleSet : equalRules.values()) {
-			// Se borra la regla que se va a mantener.
-			roisinRuleSet.remove(roisinRuleSet.iterator().next());
-			// Se a–aden las otras a la lista de borrado.
-			rulesToRemove.addAll(roisinRuleSet);
-		}
 		rules.removeAll(rulesToRemove);
+	}
+
+	protected double calculateRulesAuc() {
+		SortedSet<RoisinRule> sortedRules = Sets.newTreeSet(new RoisinRuleComparator());
+		sortedRules.addAll(this.rules);
+		int ruleCounter = 1;
+		double auc = 0.0;
+		double prevFpr = 0.0;
+		double prevTpr = 0.0;
+		for (RoisinRule roisinRule : sortedRules) {
+			if (ruleCounter > 1) {
+				// Se debe de calcular el triï¿½ngulo y el rectï¿½ngulo teniendo en
+				// cuenta los datos de esta regla y la anterior.
+				// Triï¿½ngulo:
+				auc += Math.abs((((roisinRule.getFalsePositiveRate() - prevFpr) * (roisinRule
+						.getTruePositiveRate() - prevTpr)) / 2.0));
+				// Rectï¿½ngulo
+				auc += Math.abs((roisinRule.getFalsePositiveRate() - prevFpr) * prevTpr);
+				// Cambiamos el valor de las variables prev
+				prevFpr = roisinRule.getFalsePositiveRate();
+				prevTpr = roisinRule.getTruePositiveRate();
+			} else {
+				// Sï¿½lo hay que calcular el primer triï¿½ngulo.
+				prevFpr = roisinRule.getFalsePositiveRate();
+				prevTpr = roisinRule.getTruePositiveRate();
+				auc += Math.abs(((prevFpr * prevTpr) / 2.0));
+			}
+			ruleCounter++;
+		}
+		auc += Math.abs((1 - prevFpr) * prevTpr);
+		auc += Math.abs(((1 - prevFpr) * (1 - prevTpr)) / 2.0);
+		return auc;
 	}
 
 	/*
@@ -102,42 +116,24 @@ public abstract class AbstractRoisinResults implements RoisinResults {
 	 * @see com.roisin.core.results.RoisinResults#getRulesAuc()
 	 */
 	public double getRulesAuc() {
-		SortedSet<RoisinRule> sortedRules = Sets.newTreeSet(new FalsePositiveRateComparator());
-		sortedRules.addAll(this.rules);
-		int ruleCounter = 1;
-		double auc = 0.0;
-		double prevFpr = 0.0;
-		double prevTpr = 0.0;
-		for (RoisinRule roisinRule : sortedRules) {
-			if (ruleCounter > 1) {
-				// Se debe de calcular el tri‡ngulo y el rect‡ngulo teniendo en
-				// cuenta los datos de esta regla y la anterior.
-				// Tri‡ngulo:
-				auc += Math.abs((((roisinRule.getFalsePositiveRate() - prevFpr) * (roisinRule
-						.getTruePositiveRate() - prevTpr)) / 2.0));
-				// Rect‡ngulo
-				auc += Math.abs((roisinRule.getFalsePositiveRate() - prevFpr) * prevFpr);
-				// Cambiamos el valor de las variables prev
-				prevFpr = roisinRule.getFalsePositiveRate();
-				prevTpr = roisinRule.getTruePositiveRate();
-			} else {
-				// S—lo hay que calcular el primer tri‡ngulo.
-				prevFpr = roisinRule.getFalsePositiveRate();
-				prevTpr = roisinRule.getTruePositiveRate();
-				auc += Math.abs(((prevFpr * prevTpr) / 2.0));
-			}
-			ruleCounter++;
+		return this.auc;
+	}
+
+	@Override
+	public void truncateResults() {
+		for (RoisinRule rule : rules) {
+			rule.truncateValues();
 		}
-		return auc;
+		this.auc = Utils.truncateValue(auc);
 	}
 
 	public String toString() {
 		String res = new String();
 		for (RoisinRule rule : getRoisinRules()) {
-			res += "\n\nRegla nœmero " + new Integer(getRoisinRules().indexOf(rule) + 1);
+			res += "\n\nRegla nï¿½mero " + new Integer(getRoisinRules().indexOf(rule) + 1);
 			res += "\n" + rule.toString();
 		}
-		res += "\nçrea bajo la curva del conjunto de reglas: " + getRulesAuc();
+		res += "\nï¿½rea bajo la curva del conjunto de reglas: " + getRulesAuc();
 		return res;
 	}
 
